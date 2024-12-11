@@ -14,8 +14,8 @@
     "prac-zad"
   ],
   "engines": {
-    "node": "20.15.1",
-    "npm": "10.7.0"
+    "node": ">20.9.0",
+    "npm": ">10.7.0"
   },
   "scripts": {
     "build": "nest build",
@@ -35,6 +35,7 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "mongoose": "^8.8.4",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
