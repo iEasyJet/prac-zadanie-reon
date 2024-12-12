@@ -3,6 +3,7 @@ import { AmoApiService } from './amo-api.service';
 import { HttpModule } from '@nestjs/axios';
 import { AmoApiController } from './amo-api.controller';
 import { AccountModule } from 'src/account/account.module';
+import { CustomFieldModule } from 'src/custom-field/custom-field.module';
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { AccountModule } from 'src/account/account.module';
             maxRedirects: 5,
         }),
         AccountModule,
+        CustomFieldModule,
     ],
     providers: [AmoApiService],
     controllers: [AmoApiController],
