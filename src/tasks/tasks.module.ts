@@ -8,4 +8,3 @@ import { AmoApiModule } from 'src/amo-api/amo-api.module';
     providers: [TasksService],
 })
 export class TasksModule {}
-

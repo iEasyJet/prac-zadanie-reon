@@ -4,22 +4,22 @@ import { HydratedDocument } from 'mongoose';
 @Schema()
 export class Account {
     @Prop({ required: true, unique: true })
-    accountId: number;
+    public accountId: number;
 
     @Prop({ required: true })
-    subdomain: string;
+    public subdomain: string;
 
     @Prop({ required: true })
-    accessToken: string;
+    public accessToken: string;
 
     @Prop({ required: true })
-    refreshToken: string;
+    public refreshToken: string;
 
     @Prop({ required: true })
-    isInstalled: boolean;
+    public isInstalled: boolean;
 
     @Prop({ required: true })
-    integration_id: string;
+    public integration_id: string;
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);

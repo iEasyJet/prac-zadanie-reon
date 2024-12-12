@@ -13,8 +13,9 @@ export class TasksService {
         private readonly amoApiService: AmoApiService
     ) {}
     /* '45 * * * * *' */
+
     @Cron(CronExpression.EVERY_12_HOURS)
-    async handleCron() {
+    public async handleCron(): Promise<void> {
         this.logger.debug('Updated accounts tokens!');
         const accounts =
             await this.accountService.findAllAccountWhereIntegrationInstall();

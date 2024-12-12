@@ -17,4 +17,3 @@ import { AccountModule } from 'src/account/account.module';
     exports: [AmoApiService],
 })
 export class AmoApiModule {}
-

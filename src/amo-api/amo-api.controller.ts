@@ -10,16 +10,16 @@ export class AmoApiController {
     constructor(private readonly amoApiService: AmoApiService) {}
 
     @Get('add')
-    async installIntegration(
+    public async installIntegration(
         @Query() responseWhenInstallWebHook: TResponseWhenInstallWebHook
-    ) {
+    ): Promise<void> {
         this.amoApiService.installIntegration({ responseWhenInstallWebHook });
     }
 
     @Get('delete')
-    async unInstallIntegration(
+    public async unInstallIntegration(
         @Query() responseWhenUnInstallWebHook: TResponseWhenUnInstallWebHook
-    ) {
+    ): Promise<void> {
         const accountId = Number(responseWhenUnInstallWebHook.account_id);
         this.amoApiService.unInstallIntegration({
             accountId,

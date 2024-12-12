@@ -2,20 +2,20 @@ import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
 export class CreateAccountDto {
     @IsNumber()
-    readonly accountId: number;
+    public readonly accountId: number;
 
     @IsString()
-    readonly subdomain: string;
+    public readonly subdomain: string;
 
     @IsString()
-    readonly accessToken: string;
+    public readonly accessToken: string;
 
     @IsString()
-    readonly refreshToken: string;
+    public readonly refreshToken: string;
 
     @IsBoolean()
-    readonly isInstalled: boolean;
+    public readonly isInstalled: boolean;
 
     @IsString()
-    readonly integration_id: string;
+    public readonly integration_id: string;
 }

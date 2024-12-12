@@ -15,6 +15,7 @@ import { AccountService } from 'src/account/account.service';
 @Injectable()
 export class AmoApiService {
     private readonly logger = new Logger(AmoApiService.name);
+
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
@@ -23,11 +24,12 @@ export class AmoApiService {
 
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async installIntegration({
+
+    public async installIntegration({
         responseWhenInstallWebHook,
     }: {
         responseWhenInstallWebHook: TResponseWhenInstallWebHook;
-    }) {
+    }): Promise<void> {
         try {
             const accessAndRefreshTokens = await this.getAccessAndRefreshTokens(
                 {
@@ -67,9 +69,15 @@ export class AmoApiService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async unInstallIntegration({ accountId }: { accountId: number }) {
+
+    public async unInstallIntegration({
+        accountId,
+    }: {
+        accountId: number;
+    }): Promise<void> {
         try {
             await this.accountService.updateAccount({
                 accountId,
@@ -81,9 +89,11 @@ export class AmoApiService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async getAccountInfo({
+
+    public async getAccountInfo({
         accessToken,
         subdomain,
     }: {
@@ -115,9 +125,11 @@ export class AmoApiService {
 
         return accountData;
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async getAccessAndRefreshTokens({
+
+    public async getAccessAndRefreshTokens({
         dataForGetTokens,
         grandType,
     }: {
@@ -159,22 +171,27 @@ export class AmoApiService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
+
     private createPath({
         subdomain,
         path,
     }: {
         subdomain: string;
         path: string;
-    }) {
+    }): string {
         return `https://${subdomain}${path}`;
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    private createHeaderAuthorization({ token }: { token: string }) {
+
+    private createHeaderAuthorization({ token }: { token: string }): string {
         return `${envOther.Bearer} ${token}`;
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 }

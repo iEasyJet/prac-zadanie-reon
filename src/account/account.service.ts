@@ -13,7 +13,10 @@ export class AccountService {
 
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    createAccount(accountDto: CreateAccountDto) {
+
+    public createAccount(
+        accountDto: CreateAccountDto
+    ): Promise<AccountDocument> {
         try {
             const account = new this.accountModel(accountDto);
             return account.save();
@@ -21,9 +24,11 @@ export class AccountService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async findAccountByAccountId({
+
+    public async findAccountByAccountId({
         accountId,
     }: {
         accountId: number;
@@ -40,9 +45,14 @@ export class AccountService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async findAllAccountWhereIntegrationInstall() {
+
+    public async findAllAccountWhereIntegrationInstall(): Promise<
+        Array<AccountDocument>
+        // eslint-disable-next-line indent
+    > {
         try {
             const accounts = await this.accountModel.find({
                 isInstalled: true,
@@ -52,9 +62,11 @@ export class AccountService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
-    async updateAccount({
+
+    public async updateAccount({
         accountId,
         accessToken,
         refreshToken,
@@ -85,6 +97,7 @@ export class AccountService {
             throw new Error(error.message);
         }
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 }
