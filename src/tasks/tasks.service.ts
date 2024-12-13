@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AccountService } from 'src/account/account.service';
-import { AmoApiService } from 'src/amo-api/amo-api.service';
+import { AmoApiQueryService } from 'src/amo-api/services/amo-api.query.service';
 import { envGrantType } from 'src/shared/env.enum';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class TasksService {
 
     constructor(
         private readonly accountService: AccountService,
-        private readonly amoApiService: AmoApiService
+        private readonly amoApiQueryService: AmoApiQueryService
     ) {}
     /* '45 * * * * *' */
 
@@ -25,7 +25,7 @@ export class TasksService {
         }
         accounts.forEach(async (account) => {
             const updatedTokens =
-                await this.amoApiService.getAccessAndRefreshTokens({
+                await this.amoApiQueryService.getAccessAndRefreshTokens({
                     dataForGetTokens: {
                         referer: account.subdomain,
                         client_id: account.integration_id,

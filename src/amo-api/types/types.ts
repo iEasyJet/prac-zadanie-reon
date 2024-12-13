@@ -1,4 +1,4 @@
-export type TResponseCustomFeild = {
+export type TResponseCustomField = {
     _total_items: number;
     _page: number;
     _page_count: number;

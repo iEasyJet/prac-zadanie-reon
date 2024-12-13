@@ -13,4 +13,7 @@ export class CreateCustomFieldDto {
 
     @IsNumber()
     public readonly accountId: number;
+
+    @IsString()
+    public readonly entityType: string;
 }

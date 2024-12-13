@@ -17,6 +17,25 @@ export class CustomFieldService {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
+    public async getCustomFieldsByAccountId({
+        accountId,
+    }: {
+        accountId: number;
+    }): Promise<CustomFieldDocument[]> {
+        try {
+            const customFields = await this.customFieldModel.find({
+                accountId,
+            });
+
+            return customFields;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
     public async createCustomField(
         customFieldDto: CreateCustomFieldDto
     ): Promise<CustomFieldDocument> {
@@ -37,7 +56,9 @@ export class CustomFieldService {
         accountId: number;
     }): Promise<void> {
         try {
-            await this.customFieldModel.findOneAndDelete({ accountId });
+            await this.customFieldModel.deleteMany({
+                accountId,
+            });
         } catch (error) {
             throw new Error(error.message);
         }

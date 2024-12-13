@@ -14,6 +14,24 @@ export class AccountService {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
+    public async getAccountByAccountId({
+        accountId,
+    }: {
+        accountId: number;
+    }): Promise<AccountDocument> {
+        try {
+            const account = await this.accountModel.findOne({ accountId });
+            if (!account) {
+                throw new Error(envError.Error_Account_Not_Found);
+            }
+            return account;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
     public createAccount(
         accountDto: CreateAccountDto
     ): Promise<AccountDocument> {

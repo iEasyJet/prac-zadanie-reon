@@ -13,7 +13,9 @@ export class AmoApiController {
     public async installIntegration(
         @Query() responseWhenInstallWebHook: TResponseWhenInstallWebHook
     ): Promise<void> {
-        this.amoApiService.installIntegration({ responseWhenInstallWebHook });
+        await this.amoApiService.installIntegration({
+            responseWhenInstallWebHook,
+        });
     }
 
     @Get('delete')
@@ -21,7 +23,7 @@ export class AmoApiController {
         @Query() responseWhenUnInstallWebHook: TResponseWhenUnInstallWebHook
     ): Promise<void> {
         const accountId = Number(responseWhenUnInstallWebHook.account_id);
-        this.amoApiService.unInstallIntegration({
+        await this.amoApiService.unInstallIntegration({
             accountId,
         });
     }
