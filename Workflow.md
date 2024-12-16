@@ -28,4 +28,5 @@
 | PORT                                  | number | Порт запуска всего приложения                                         |
 | MONGODB_URL                           | string | Подключение к БД                                                      |
 | CLIENT_SECRET                         | string | Секретный ключ интеграции из вкладки "Ключи и доступы"                |
+| CLIENT_ID                             | string | Id интеграции из вкладки "Ключи и доступы"                            |
 | REDIRECT_URI_WHEN_INSTALL_INTEGRATION | string | Путь редиректа, который указывается при установке интеграции в amoCRM |

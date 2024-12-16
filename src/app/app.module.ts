@@ -4,9 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TasksModule } from 'src/tasks/tasks.module';
-import { AccountModule } from 'src/account/account.module';
-import { AmoApiModule } from 'src/amo-api/amo-api.module';
+import { AccountModule } from 'src/modules/account/account.module';
+import { AmoApiModule } from 'src/modules/amo-api/amo-api.module';
+import { env } from 'src/shared/env.enum';
 
 @Module({
     imports: [
@@ -15,13 +15,12 @@ import { AmoApiModule } from 'src/amo-api/amo-api.module';
         }),
         MongooseModule.forRootAsync({
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get<string>('MONGODB_URL'),
+                uri: configService.get<string>(env.MongoDB_URL),
             }),
             inject: [ConfigService],
         }),
         AccountModule,
         ScheduleModule.forRoot(),
-        TasksModule,
         AmoApiModule,
     ],
     controllers: [AppController],
