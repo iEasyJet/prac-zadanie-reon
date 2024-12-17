@@ -7,8 +7,6 @@ const enumFieldName = new Set([
     ...Endpoints.AmoApi.CustomFields.Lead.Fields.map((el) => el.name),
 ]);
 
-console.log(enumFieldName);
-
 @Schema()
 export class CustomField {
     @Prop({ required: true })

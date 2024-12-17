@@ -7,11 +7,20 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AccountModule } from 'src/modules/account/account.module';
 import { AmoApiModule } from 'src/modules/amo-api/amo-api.module';
 import { env } from 'src/shared/env.enum';
+import * as Joi from 'joi';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
+            validationSchema: Joi.object({
+                [env.Port]: Joi.number().required().port().default(3000),
+                [env.Client_ID]: Joi.string().required(),
+                [env.Client_Secret]: Joi.string().required(),
+                [env.MongoDB_URL]: Joi.string().required(),
+                [env.Redirect_Uri_When_Install_integration]:
+                    Joi.string().required(),
+            }),
         }),
         MongooseModule.forRootAsync({
             useFactory: (configService: ConfigService) => ({

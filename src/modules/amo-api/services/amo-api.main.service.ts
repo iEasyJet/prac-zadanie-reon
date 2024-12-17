@@ -117,15 +117,18 @@ export class AmoApiMainService {
                         }
                     })() as string;
 
-                    // Так как одно поле и нет больше примеров, то захаркодил
-                    const enums = Endpoints.AmoApi.CustomFields.Lead.Fields.map(
-                        (el, index) => {
-                            return {
-                                value: el,
-                                sort: index + 1,
-                            };
-                        }
-                    );
+                    const fieldsByName =
+                        Endpoints.AmoApi.CustomFields.Lead.Fields.filter(
+                            (field) => {
+                                return field.name === el;
+                            }
+                        )[0].items;
+                    const enums = fieldsByName.map((el, index) => {
+                        return {
+                            value: el,
+                            sort: index + 1,
+                        };
+                    });
 
                     return {
                         name: el,
@@ -135,7 +138,7 @@ export class AmoApiMainService {
                     };
                 }
             );
-            console.log(payloadLead[0].enums);
+
             newCustomFieldsLeadForAmo =
                 await this.amoApiQueryService.createCustomFields({
                     subdomain,
