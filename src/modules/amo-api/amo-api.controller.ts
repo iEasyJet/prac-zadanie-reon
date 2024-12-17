@@ -3,10 +3,14 @@ import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { AmoApiService } from './amo-api.service';
 import { TQueryWhenInstallWebHook } from './types/types';
 import { Endpoints } from 'src/shared/constants/endpoints';
+import { AmoApiWebHookService } from './services/amo-api.webhook.service';
 
 @Controller(Endpoints.AmoApi.Endpoint.Amo_Integration)
 export class AmoApiController {
-    constructor(private readonly amoApiService: AmoApiService) {}
+    constructor(
+        private readonly amoApiService: AmoApiService,
+        private readonly amoApiWebHookService: AmoApiWebHookService
+    ) {}
 
     @Get(Endpoints.AmoApi.Endpoint.Add)
     public async installIntegration(
