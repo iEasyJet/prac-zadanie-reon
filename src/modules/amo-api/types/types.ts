@@ -162,6 +162,36 @@ export type TAddWebHook = {
     accessToken: string;
 };
 
+export type TCreateCustomFields = {
+    subdomain: string;
+    accessToken: string;
+    payload: {
+        name: string;
+        type: string;
+        sort: number;
+    }[];
+    pathQ: string;
+};
+
+export type TGetCustomFields = {
+    subdomain: string;
+    pathQ: string;
+    accessToken: string;
+};
+
+export type TPatchContactCustomFields = {
+    subdomain: string;
+    accessToken: string;
+    payload: {
+        id: number;
+        custom_fields_values: {
+            field_id: number;
+            values: { value: string | number }[];
+        }[];
+    }[];
+    pathQ: string;
+};
+
 type EnumValue = {
     id: number;
     value: string;

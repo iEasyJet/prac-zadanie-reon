@@ -24,6 +24,7 @@ export const Endpoints = {
             Contacts_Custom_Fields: '/api/v4/contacts/custom_fields',
             Leads_Custom_Fields: '/api/v4/leads/custom_fields',
             WebHooks: '/api/v4/webhooks',
+            Contact: '/api/v4/contacts',
         },
         GrantType: {
             Authorization_Code: 'authorization_code',

@@ -8,6 +8,7 @@ import { AccountModule } from 'src/modules/account/account.module';
 import { AmoApiModule } from 'src/modules/amo-api/amo-api.module';
 import { env } from 'src/shared/env.enum';
 import * as Joi from 'joi';
+import { ContactModule } from 'src/modules/contact/contact.module';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import * as Joi from 'joi';
         AccountModule,
         ScheduleModule.forRoot(),
         AmoApiModule,
+        ContactModule,
     ],
     controllers: [AppController],
     providers: [AppService],
