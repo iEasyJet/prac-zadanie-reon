@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import { env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/env.enum';
 import { AccountRepository } from './account.repository';
 import { AmoApiQueryService } from '../amo-api/services/amo-api.query.service';
-import { envLimit } from './enums/limit.enum';
 import { Endpoints } from 'src/shared/constants/endpoints';
+import { AccountDocument } from './models/account.model';
 
 @Injectable()
 export class AccountService {
@@ -18,6 +18,7 @@ export class AccountService {
     ) {}
 
     /* '45 * * * * *' */
+    /* CronExpression.EVERY_12_HOURS */
 
     @Cron(CronExpression.EVERY_12_HOURS)
     public async handleCron(): Promise<void> {
@@ -31,7 +32,6 @@ export class AccountService {
                 await this.accountRepository.findAllAccountWhereIntegrationInstall(
                     {
                         offset,
-                        limit: envLimit.Limit_Account,
                     }
                 );
 
@@ -41,31 +41,33 @@ export class AccountService {
             }
 
             await Promise.allSettled(
-                accounts.map(async (account) => {
-                    const updatedTokens =
-                        await this.amoApiQueryService.getAccessAndRefreshTokens(
-                            {
-                                dataForGetTokens: {
-                                    referer: account.subdomain,
-                                    client_id: this.configService.get<string>(
-                                        env.Client_ID
-                                    ) as string,
-                                    refresh_token: account.refreshToken,
-                                },
-                                grandType:
-                                    Endpoints.AmoApi.GrantType.Refresh_Token,
-                            }
-                        );
-
-                    await this.accountRepository.updateAccount({
-                        accountId: account.accountId,
-                        accessToken: updatedTokens.access_token,
-                        refreshToken: updatedTokens.refresh_token,
-                    });
-                })
+                accounts.map(
+                    async (account) => await this.preparingAccountData(account)
+                )
             );
 
-            offset += envLimit.Limit_Account;
+            offset += this.accountRepository.findAccountsLimit;
         }
+    }
+
+    private async preparingAccountData(
+        account: AccountDocument
+    ): Promise<AccountDocument> {
+        const updatedTokens =
+            await this.amoApiQueryService.getAccessAndRefreshTokens({
+                dataForGetTokens: {
+                    referer: account.subdomain,
+                    client_id: this.configService.get<string>(
+                        Env.ClientID
+                    ) as string,
+                    refresh_token: account.refreshToken,
+                },
+                grandType: Endpoints.AmoApi.GrantType.Refresh_Token,
+            });
+
+        return this.accountRepository.updateAccount(account.id, {
+            accessToken: updatedTokens.access_token,
+            refreshToken: updatedTokens.refresh_token,
+        });
     }
 }

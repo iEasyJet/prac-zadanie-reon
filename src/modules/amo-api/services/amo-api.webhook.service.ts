@@ -9,9 +9,9 @@ import {
     TWebHook,
     TWebHookData,
 } from '../types/types';
-import { Endpoints } from 'src/shared/constants/endpoints';
 import { ConfigService } from '@nestjs/config';
-import { env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/env.enum';
+import { Endpoints } from 'src/shared/constants/endpoints';
 
 @Injectable()
 export class AmoApiWebHookService {
@@ -82,12 +82,25 @@ export class AmoApiWebHookService {
     public async checkWebHooksNotInstall({
         webhooks,
     }: TCheckWebHooks): Promise<TResponseCheckWebHooks[]> {
-        const listRequiredWebHooks = Object.values(
-            Endpoints.AmoApi.WebHookEvents
-        ).map((el) => {
+        const singleArrWebHookEndpoints = Object.values(
+            Endpoints.AmoApi.Endpoint.WebHook
+        );
+
+        const asd = singleArrWebHookEndpoints.map((el, index) => {
+            if (typeof el === 'string' && index === 0) {
+                return el;
+            }
+
+            if (typeof el === 'object' && index !== 0) {
+                const values = Object.values(el);
+                return values;
+            }
+        });
+
+        const listRequiredWebHooks = singleArrWebHookEndpoints.map((el) => {
             return {
                 path: `${this.configService.get(
-                    env.Redirect_Uri_When_Install_integration
+                    Env.RedirectURIWhenInstallIntegration
                 )}/${el}`,
                 name: el,
             };

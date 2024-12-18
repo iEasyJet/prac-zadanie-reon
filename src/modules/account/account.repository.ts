@@ -3,16 +3,17 @@ import { Account, AccountDocument } from './models/account.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateAccountDTO } from './dto/create-account.dto';
-import { Endpoints } from 'src/shared/constants/endpoints';
-import { envError } from './enums/errors.enum';
-import {
-    TAccount_ID,
-    TOptionsWhereIntegrationInstall,
-    TUpdateAccount,
-} from './types/types';
+import { EnvError } from './enums/errors.enum';
+import { TAccountId } from './types/accountId';
+import { TOptionsWhereIntegrationInstall } from './types/optionsWhereIntegrationInstall';
+import { TModelId } from './types/modelId';
+import { TUpdateAccount } from './types/updateAccount';
+import { AccountSettings } from 'src/shared/constants/account-settings';
 
 @Injectable()
 export class AccountRepository {
+    public findAccountsLimit = 5;
+
     constructor(
         @InjectModel(Account.name) private accountModel: Model<Account>
     ) {}
@@ -22,10 +23,10 @@ export class AccountRepository {
 
     public async getAccountByAccountId({
         accountId,
-    }: TAccount_ID): Promise<AccountDocument> {
+    }: TAccountId): Promise<AccountDocument> {
         const account = await this.accountModel.findOne({ accountId });
         if (!account) {
-            throw new NotFoundException(envError.Not_Found);
+            throw new NotFoundException(EnvError.Not_Found);
         }
         return account;
     }
@@ -44,7 +45,7 @@ export class AccountRepository {
 
     public async checkAccountByAccountId({
         accountId,
-    }: TAccount_ID): Promise<boolean> {
+    }: TAccountId): Promise<boolean> {
         const account = await this.accountModel.findOne({ accountId });
         if (account) {
             return true;
@@ -58,17 +59,16 @@ export class AccountRepository {
 
     public async findAllAccountWhereIntegrationInstall({
         offset,
-        limit,
     }: TOptionsWhereIntegrationInstall): Promise<
         Array<AccountDocument>
         // eslint-disable-next-line indent
     > {
         const accounts = await this.accountModel
             .find({
-                isInstalled: Endpoints.Account.Install,
+                isInstalled: AccountSettings.Install,
             })
             .skip(offset)
-            .limit(limit)
+            .limit(this.findAccountsLimit)
             .exec();
         return accounts;
     }
@@ -76,14 +76,12 @@ export class AccountRepository {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async updateAccount({
-        accountId,
-        accessToken,
-        refreshToken,
-        isInstalled,
-    }: TUpdateAccount): Promise<AccountDocument> {
-        const updatedAccount = await this.accountModel.findOneAndUpdate(
-            { accountId },
+    public async updateAccount(
+        id: TModelId,
+        { accessToken, refreshToken, isInstalled }: TUpdateAccount
+    ): Promise<AccountDocument> {
+        const updatedAccount = await this.accountModel.findByIdAndUpdate(
+            id,
             {
                 accessToken,
                 refreshToken,
@@ -93,7 +91,7 @@ export class AccountRepository {
         );
 
         if (!updatedAccount) {
-            throw new NotFoundException(envError.Not_Found);
+            throw new NotFoundException(EnvError.Not_Found);
         }
 
         return updatedAccount;
@@ -102,21 +100,19 @@ export class AccountRepository {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async clearAccount({
-        accountId,
-    }: TAccount_ID): Promise<AccountDocument> {
-        const updatedAccount = await this.accountModel.findOneAndUpdate(
-            { accountId },
+    public async clearAccount({ id }: TModelId): Promise<AccountDocument> {
+        const updatedAccount = await this.accountModel.findByIdAndUpdate(
+            id,
             {
                 accessToken: null,
                 refreshToken: null,
-                isInstalled: Endpoints.Account.Uninstall,
+                isInstalled: AccountSettings.Uninstall,
             },
             { new: true }
         );
 
         if (!updatedAccount) {
-            throw new NotFoundException(envError.Not_Found);
+            throw new NotFoundException(EnvError.Not_Found);
         }
 
         return updatedAccount;

@@ -3,9 +3,11 @@ import { TAccount_ID, TQueryWhenInstallWebHook } from './types/types';
 import { AmoApiQueryService } from './services/amo-api.query.service';
 import { AmoApiMainService } from './services/amo-api.main.service';
 import { AccountRepository } from '../account/account.repository';
-import { Endpoints } from 'src/shared/constants/endpoints';
 import { CustomFieldRepository } from '../custom-field/custom-field.repository';
 import { AmoApiWebHookService } from './services/amo-api.webhook.service';
+import { GrantType } from 'src/shared/constants/grand-type';
+import { AccountSettings } from 'src/shared/constants/account-settings';
+import { Path } from 'src/shared/constants/path';
 
 @Injectable()
 export class AmoApiService {
@@ -28,7 +30,7 @@ export class AmoApiService {
         const accessAndRefreshTokens =
             await this.amoApiQueryService.getAccessAndRefreshTokens({
                 dataForGetTokens: queryWhenInstallWebHook,
-                grandType: Endpoints.AmoApi.GrantType.Authorization_Code,
+                grandType: GrantType.AuthorizationCode,
             });
 
         const accountInfoFromCrm = await this.amoApiQueryService.getAccountInfo(
@@ -43,12 +45,15 @@ export class AmoApiService {
                 accountId: accountInfoFromCrm.id,
             });
 
+        const account = await this.accountRepository.getAccountByAccountId({
+            accountId: accountInfoFromCrm.id,
+        });
+
         if (existAccount) {
-            await this.accountRepository.updateAccount({
-                accountId: accountInfoFromCrm.id,
+            await this.accountRepository.updateAccount(account.id, {
                 accessToken: accessAndRefreshTokens.access_token,
                 refreshToken: accessAndRefreshTokens.refresh_token,
-                isInstalled: Endpoints.Account.Install,
+                isInstalled: AccountSettings.Install,
             });
         } else {
             await this.accountRepository.createAccount({
@@ -56,7 +61,7 @@ export class AmoApiService {
                 subdomain: queryWhenInstallWebHook.referer,
                 accessToken: accessAndRefreshTokens.access_token,
                 refreshToken: accessAndRefreshTokens.refresh_token,
-                isInstalled: Endpoints.Account.Install,
+                isInstalled: AccountSettings.Install,
             });
         }
 
@@ -73,7 +78,7 @@ export class AmoApiService {
 
         const webHooksFromAmo = await this.amoApiWebHookService.getWebHooks({
             subdomain: queryWhenInstallWebHook.referer,
-            pathQ: Endpoints.AmoApi.Path.WebHooks,
+            pathQ: Path.WebHooks,
             accessToken: accessAndRefreshTokens.access_token,
         });
 
@@ -92,7 +97,7 @@ export class AmoApiService {
 
                     this.amoApiWebHookService.addWebHook({
                         subdomain: queryWhenInstallWebHook.referer,
-                        pathQ: Endpoints.AmoApi.Path.WebHooks,
+                        pathQ: Path.WebHooks,
                         accessToken: accessAndRefreshTokens.access_token,
                         payload,
                     });
@@ -109,8 +114,12 @@ export class AmoApiService {
     }: TAccount_ID): Promise<void> {
         /* Часть 1 */
 
-        await this.accountRepository.clearAccount({
+        const account = await this.accountRepository.getAccountByAccountId({
             accountId,
+        });
+
+        await this.accountRepository.clearAccount({
+            id: account.id,
         });
 
         /* Часть 2 */

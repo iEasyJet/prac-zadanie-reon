@@ -15,9 +15,10 @@ import {
     TResponseAccountData,
     TResponseWithTokens,
 } from '../types/types';
-import { envError } from '../enums/error.enum';
+import { EnvError } from '../enums/error.enum';
 import { Endpoints } from 'src/shared/constants/endpoints';
-import { env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/env.enum';
+import { Path } from 'src/shared/constants/path';
 
 @Injectable()
 export class AmoApiQueryService {
@@ -38,7 +39,7 @@ export class AmoApiQueryService {
     }: TRequestGetAccountInfo): Promise<TResponseAccountData> {
         const path = this.amoApiHelperService.createPath({
             subdomain,
-            path: [Endpoints.AmoApi.Path.Account_Data],
+            path: [Path.AccountData],
         });
 
         const header = {
@@ -54,7 +55,7 @@ export class AmoApiQueryService {
             this.httpService.get<TResponseAccountData>(path, header).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error(error.response?.data);
-                    throw envError.Get_Account_Data;
+                    throw EnvError.GetAccountData;
                 })
             )
         );
@@ -71,16 +72,16 @@ export class AmoApiQueryService {
     }: TRequestAccessAndRefreshTokens): Promise<TResponseWithTokens> {
         const path = this.amoApiHelperService.createPath({
             subdomain: dataForGetTokens.referer,
-            path: [Endpoints.AmoApi.Path.Access_Token],
+            path: [Path.AccessToken],
         });
 
         const redirect_uri = `${this.configService.get(
-            env.Redirect_Uri_When_Install_integration
-        )}/${Endpoints.AmoApi.Endpoint.Amo_Integration}/${Endpoints.AmoApi.Endpoint.Add}`;
+            Env.RedirectURIWhenInstallIntegration
+        )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
 
         const payload = {
             client_id: dataForGetTokens.client_id,
-            client_secret: this.configService.get(env.Client_Secret),
+            client_secret: this.configService.get(Env.ClientSecret),
             grant_type: grandType,
             code: dataForGetTokens.code ?? undefined,
             refresh_token: dataForGetTokens.refresh_token ?? undefined,
@@ -92,7 +93,7 @@ export class AmoApiQueryService {
                 this.httpService.post(path, payload).pipe(
                     catchError((error: AxiosError) => {
                         this.logger.error(error.response?.data);
-                        throw envError.Post_Access_Refresh_Tokens;
+                        throw EnvError.PostAccessRefreshTokens;
                     })
                 )
             );
@@ -125,7 +126,7 @@ export class AmoApiQueryService {
             this.httpService.get<TQueryCustomField>(path, header).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error(error.response?.data);
-                    throw envError.Get_Custom_Fields;
+                    throw EnvError.GetCustomFields;
                 })
             )
         );
@@ -165,7 +166,7 @@ export class AmoApiQueryService {
                 .pipe(
                     catchError((error: AxiosError) => {
                         this.logger.error(error.response?.data);
-                        throw envError.Post_Custom_Fields;
+                        throw EnvError.PostCustomFields;
                     })
                 )
         );

@@ -10,4 +10,3 @@ import { AccountModule } from '../account/account.module';
     imports: [AmoApiModule, AccountModule],
 })
 export class ContactModule {}
-

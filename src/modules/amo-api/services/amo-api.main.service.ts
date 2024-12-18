@@ -3,7 +3,9 @@ import { AmoApiQueryService } from './amo-api.query.service';
 import { AmoApiHelperService } from './amo-api.helper.service';
 import { TFieldObject, TRequestAddCustomFields } from '../types/types';
 import { CustomFieldRepository } from 'src/modules/custom-field/custom-field.repository';
-import { Endpoints } from 'src/shared/constants/endpoints';
+import { Path } from 'src/shared/constants/path';
+import { EntityType } from 'src/shared/constants/entity-type';
+import { CustomFields } from 'src/shared/constants/custom-fields';
 
 @Injectable()
 export class AmoApiMainService {
@@ -21,14 +23,16 @@ export class AmoApiMainService {
         accessToken,
     }: TRequestAddCustomFields): Promise<void> {
         /* Contact */
-        const arrayOfEnumContact: string[] =
-            Endpoints.AmoApi.CustomFields.Contact.Fields.map((el) => el.name);
+        const arrayOfEnumContact: string[] = Object.values(
+            CustomFields.Contact.Fields
+        ).map((el) => el.name);
+        //Endpoints.AmoApi.CustomFields.Contact.Fields.map((el) => el.name);
 
         const {
             _embedded: { custom_fields: customFieldsContact },
         } = await this.amoApiQueryService.getCustomFields({
             subdomain,
-            pathQ: Endpoints.AmoApi.Path.Contacts_Custom_Fields,
+            pathQ: Path.ContactsCustomFields,
             accessToken,
         });
 
@@ -44,13 +48,23 @@ export class AmoApiMainService {
             const payloadContact = contactData.notExistCustomFieldsInAmoCrm.map(
                 (el, index) => {
                     const type = (function (): string | undefined {
+                        for (const field of Object.values(
+                            CustomFields.Contact.Fields
+                        )) {
+                            if (field.name === el) {
+                                return field.type;
+                            }
+                        }
+                    })() as string;
+                    /* (function (): string | undefined {
                         for (const field of Endpoints.AmoApi.CustomFields
                             .Contact.Fields) {
                             if (field.name === el) {
                                 return field.type;
                             }
                         }
-                    })() as string;
+                    })() as string; */
+
                     return {
                         name: el,
                         type,
@@ -64,7 +78,7 @@ export class AmoApiMainService {
                     subdomain,
                     accessToken,
                     payload: payloadContact,
-                    pathQ: Endpoints.AmoApi.Path.Contacts_Custom_Fields,
+                    pathQ: Path.ContactsCustomFields,
                 });
         }
 
@@ -80,7 +94,7 @@ export class AmoApiMainService {
                     fieldType: el.type,
                     fieldName: el.name,
                     accountId: el.account_id,
-                    entityType: Endpoints.AmoApi.EntityType.Contact,
+                    entityType: EntityType.Contact,
                 };
 
                 this.customFieldRepository.createCustomField(payload);
@@ -88,13 +102,15 @@ export class AmoApiMainService {
         );
 
         /* Leads */
-        const arrayOfEnumLead: string[] =
-            Endpoints.AmoApi.CustomFields.Lead.Fields.map((el) => el.name);
+        const arrayOfEnumLead: string[] = Object.values(
+            CustomFields.Lead.Fields
+        ).map((el) => el.name);
+        // Endpoints.AmoApi.CustomFields.Lead.Fields.map((el) => el.name);
         const {
             _embedded: { custom_fields: customFieldsLead },
         } = await this.amoApiQueryService.getCustomFields({
             subdomain,
-            pathQ: Endpoints.AmoApi.Path.Leads_Custom_Fields,
+            pathQ: Path.LeadsCustomFields,
             accessToken,
         });
         const leadData =
@@ -109,21 +125,22 @@ export class AmoApiMainService {
             const payloadLead = leadData.notExistCustomFieldsInAmoCrm.map(
                 (el, index) => {
                     const type = (function (): string | undefined {
-                        for (const field of Endpoints.AmoApi.CustomFields.Lead
-                            .Fields) {
+                        for (const field of Object.values(
+                            CustomFields.Lead.Fields
+                        )) {
                             if (field.name === el) {
                                 return field.type;
                             }
                         }
                     })() as string;
 
-                    const fieldsByName =
-                        Endpoints.AmoApi.CustomFields.Lead.Fields.filter(
-                            (field) => {
-                                return field.name === el;
-                            }
-                        )[0].items;
-                    const enums = fieldsByName.map((el, index) => {
+                    const fieldsByName = Object.values(
+                        CustomFields.Lead.Fields
+                    ).filter((field) => {
+                        return field.name === el;
+                    })[0].items;
+
+                    const enums = fieldsByName?.map((el, index) => {
                         return {
                             value: el,
                             sort: index + 1,
@@ -144,7 +161,7 @@ export class AmoApiMainService {
                     subdomain,
                     accessToken,
                     payload: payloadLead,
-                    pathQ: Endpoints.AmoApi.Path.Leads_Custom_Fields,
+                    pathQ: Path.LeadsCustomFields,
                 });
         }
 
@@ -160,7 +177,7 @@ export class AmoApiMainService {
                     fieldType: el.type,
                     fieldName: el.name,
                     accountId: el.account_id,
-                    entityType: Endpoints.AmoApi.EntityType.Lead,
+                    entityType: EntityType.Lead,
                 };
                 this.customFieldRepository.createCustomField(payload);
             })
