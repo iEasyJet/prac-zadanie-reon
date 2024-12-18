@@ -5,6 +5,7 @@ import { AmoApiMainService } from './services/amo-api.main.service';
 import { AccountRepository } from '../account/account.repository';
 import { Endpoints } from 'src/shared/constants/endpoints';
 import { CustomFieldRepository } from '../custom-field/custom-field.repository';
+import { AmoApiWebHookService } from './services/amo-api.webhook.service';
 
 @Injectable()
 export class AmoApiService {
@@ -12,7 +13,8 @@ export class AmoApiService {
         private readonly accountRepository: AccountRepository,
         private readonly amoApiQueryService: AmoApiQueryService,
         private readonly amoApiMainService: AmoApiMainService,
-        private readonly customFieldRepository: CustomFieldRepository
+        private readonly customFieldRepository: CustomFieldRepository,
+        private readonly amoApiWebHookService: AmoApiWebHookService
     ) {}
 
     /* --------------------------------------------------------------------------------------------------- */
@@ -66,6 +68,37 @@ export class AmoApiService {
                 accessToken: accessAndRefreshTokens.access_token,
             }
         );
+
+        /* Часть 3. Установка хуков */
+
+        const webHooksFromAmo = await this.amoApiWebHookService.getWebHooks({
+            subdomain: queryWhenInstallWebHook.referer,
+            pathQ: Endpoints.AmoApi.Path.WebHooks,
+            accessToken: accessAndRefreshTokens.access_token,
+        });
+
+        const webHooksForInstall =
+            await this.amoApiWebHookService.checkWebHooksNotInstall({
+                webhooks: webHooksFromAmo,
+            });
+
+        if (webHooksForInstall.length) {
+            Promise.allSettled(
+                webHooksForInstall.map((hook) => {
+                    const payload = {
+                        destination: hook.path,
+                        settings: [hook.name],
+                    };
+
+                    this.amoApiWebHookService.addWebHook({
+                        subdomain: queryWhenInstallWebHook.referer,
+                        pathQ: Endpoints.AmoApi.Path.WebHooks,
+                        accessToken: accessAndRefreshTokens.access_token,
+                        payload,
+                    });
+                })
+            );
+        }
     }
 
     /* --------------------------------------------------------------------------------------------------- */

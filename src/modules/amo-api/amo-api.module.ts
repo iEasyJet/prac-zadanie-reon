@@ -7,6 +7,7 @@ import { AmoApiQueryService } from './services/amo-api.query.service';
 import { AmoApiMainService } from './services/amo-api.main.service';
 import { AccountModule } from '../account/account.module';
 import { CustomFieldModule } from '../custom-field/custom-field.module';
+import { AmoApiWebHookService } from './services/amo-api.webhook.service';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { CustomFieldModule } from '../custom-field/custom-field.module';
         AmoApiHelperService,
         AmoApiQueryService,
         AmoApiMainService,
+        AmoApiWebHookService,
     ],
     controllers: [AmoApiController],
     exports: [AmoApiQueryService],

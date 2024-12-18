@@ -118,6 +118,50 @@ export type TRequestAccessAndRefreshTokens = {
     grandType: string;
 };
 
+export type TWebHookData = {
+    id: number;
+    created_by: number;
+    created_at: number;
+    updated_at: number;
+    sort: number;
+    disabled: boolean;
+    destination: string;
+    settings: string[];
+};
+
+export type TWebHook = {
+    _total_items: number;
+    _embedded: {
+        webhooks: TWebHookData[];
+    };
+};
+
+export type TGetWebHooks = {
+    subdomain: string;
+    pathQ: string;
+    accessToken: string;
+};
+
+export type TCheckWebHooks = {
+    webhooks: TWebHookData[];
+};
+
+export type TResponseCheckWebHooks = {
+    path: string;
+    name: string;
+};
+
+export type TAddWebHook = {
+    subdomain: string;
+    payload: {
+        destination: string;
+        settings: string[];
+        sort?: number;
+    };
+    pathQ: string;
+    accessToken: string;
+};
+
 type EnumValue = {
     id: number;
     value: string;
