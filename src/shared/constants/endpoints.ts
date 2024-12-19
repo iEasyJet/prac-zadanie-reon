@@ -13,7 +13,7 @@ export const Endpoints = {
                 Contact: {
                     Contact: 'contact',
                     Next: { Add: 'add', Update: 'update' },
-                    //Amo: { Add: 'add_contact', Update: 'update_contact' },
+                    Amo: { Add: 'add_contact', Update: 'update_contact' },
                 },
                 Lead: {
                     Lead: 'lead',
@@ -21,7 +21,7 @@ export const Endpoints = {
                         Add: 'add',
                         Update: 'update',
                     },
-                    //Amo: { Add: 'add_lead', Update: 'update_lead' },
+                    Amo: { Add: 'add_lead', Update: 'update_lead' },
                 },
             },
         },

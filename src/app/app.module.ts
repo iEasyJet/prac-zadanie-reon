@@ -6,9 +6,10 @@ import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AccountModule } from 'src/modules/account/account.module';
 import { AmoApiModule } from 'src/modules/amo-api/amo-api.module';
-import { Env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/enums/env.enum';
 import * as Joi from 'joi';
 import { ContactModule } from 'src/modules/contact/contact.module';
+import { CustomFieldModule } from 'src/modules/custom-field/custom-field.module';
 
 @Module({
     imports: [
@@ -29,10 +30,11 @@ import { ContactModule } from 'src/modules/contact/contact.module';
             }),
             inject: [ConfigService],
         }),
-        AccountModule,
         ScheduleModule.forRoot(),
+        AccountModule,
         AmoApiModule,
         ContactModule,
+        CustomFieldModule,
     ],
     controllers: [AppController],
     providers: [AppService],

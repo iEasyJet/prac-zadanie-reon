@@ -1,34 +1,34 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AmoApiHelperService } from './amo-api.helper.service';
+import { AmoApiHelper } from './amo-api.helper';
 import { catchError, firstValueFrom } from 'rxjs';
 import axios, { AxiosError } from 'axios';
-import {
-    TCreateCustomFields,
-    TFieldObject,
-    TGetCustomFields,
-    TPatchContactCustomFields,
-    TQueryCustomField,
-    TRequestAccessAndRefreshTokens,
-    TRequestGetAccountInfo,
-    TResponseAccountData,
-    TResponseWithTokens,
-} from '../types/types';
 import { EnvError } from '../enums/error.enum';
 import { Endpoints } from 'src/shared/constants/endpoints';
-import { Env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/enums/env.enum';
 import { Path } from 'src/shared/constants/path';
+import { TRequestGetAccountInfo } from '../types/requestGetAccountInfo';
+import { TAmoAccount } from '../types/amoAccount';
+import { TResponseWithTokens } from '../types/responseWithTokens';
+import { TQueryCustomField } from '../types/queryCustomField';
+import { TGetCustomFields } from '../types/getCustomFields';
+import { TFieldObject } from '../../../shared/types/fieldObject';
+import { TCreateCustomFields } from '../types/createCustomFields';
+import { TPatchContactCustomFields } from '../types/patchContactCustomFields';
+import { GrantType } from 'src/shared/constants/grand-type';
+import { TGetTokens } from '../types/getTokens';
 
 @Injectable()
-export class AmoApiQueryService {
-    private readonly logger = new Logger(AmoApiQueryService.name);
+export class AmoApiRepository extends AmoApiHelper {
+    private readonly logger = new Logger(AmoApiRepository.name);
 
     constructor(
         private readonly httpService: HttpService,
-        private readonly configService: ConfigService,
-        private readonly amoApiHelperService: AmoApiHelperService
-    ) {}
+        private readonly configService: ConfigService
+    ) {
+        super();
+    }
 
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
@@ -36,23 +36,18 @@ export class AmoApiQueryService {
     public async getAccountInfo({
         accessToken,
         subdomain,
-    }: TRequestGetAccountInfo): Promise<TResponseAccountData> {
-        const path = this.amoApiHelperService.createPath({
+    }: TRequestGetAccountInfo): Promise<TAmoAccount> {
+        const path = this.createPath({
             subdomain,
             path: [Path.AccountData],
         });
 
-        const header = {
-            headers: {
-                Authorization:
-                    this.amoApiHelperService.createHeaderAuthorization({
-                        token: accessToken,
-                    }),
-            },
-        };
+        const header = this.createHeaderAuthorization({
+            token: accessToken,
+        });
 
         const { data: accountData } = await firstValueFrom(
-            this.httpService.get<TResponseAccountData>(path, header).pipe(
+            this.httpService.get<TAmoAccount>(path, header).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error(error.response?.data);
                     throw EnvError.GetAccountData;
@@ -66,12 +61,12 @@ export class AmoApiQueryService {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async getAccessAndRefreshTokens({
-        dataForGetTokens,
-        grandType,
-    }: TRequestAccessAndRefreshTokens): Promise<TResponseWithTokens> {
-        const path = this.amoApiHelperService.createPath({
-            subdomain: dataForGetTokens.referer,
+    public async getTokens({
+        code,
+        referer,
+    }: TGetTokens): Promise<TResponseWithTokens> {
+        const path = this.createPath({
+            subdomain: referer,
             path: [Path.AccessToken],
         });
 
@@ -80,15 +75,14 @@ export class AmoApiQueryService {
         )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
 
         const payload = {
-            client_id: dataForGetTokens.client_id,
+            client_id: this.configService.get(Env.ClientID),
             client_secret: this.configService.get(Env.ClientSecret),
-            grant_type: grandType,
-            code: dataForGetTokens.code ?? undefined,
-            refresh_token: dataForGetTokens.refresh_token ?? undefined,
+            grant_type: GrantType.AuthorizationCode,
+            code,
             redirect_uri,
         };
 
-        const { data: accessAndRefreshTokens }: { data: TResponseWithTokens } =
+        const { data: tokens }: { data: TResponseWithTokens } =
             await firstValueFrom(
                 this.httpService.post(path, payload).pipe(
                     catchError((error: AxiosError) => {
@@ -97,7 +91,42 @@ export class AmoApiQueryService {
                     })
                 )
             );
-        return accessAndRefreshTokens;
+        return tokens;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+    public async updateToken({
+        referer,
+        refresh_token,
+    }: TGetTokens): Promise<TResponseWithTokens> {
+        const path = this.createPath({
+            subdomain: referer,
+            path: [Path.AccessToken],
+        });
+
+        const redirect_uri = `${this.configService.get(
+            Env.RedirectURIWhenInstallIntegration
+        )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
+
+        const payload = {
+            client_id: this.configService.get(Env.ClientID),
+            client_secret: this.configService.get(Env.ClientSecret),
+            grant_type: GrantType.RefreshToken,
+            refresh_token: refresh_token,
+            redirect_uri,
+        };
+
+        const { data: tokens }: { data: TResponseWithTokens } =
+            await firstValueFrom(
+                this.httpService.post(path, payload).pipe(
+                    catchError((error: AxiosError) => {
+                        this.logger.error(error.response?.data);
+                        throw EnvError.PostAccessRefreshTokens;
+                    })
+                )
+            );
+        return tokens;
     }
 
     /* --------------------------------------------------------------------------------------------------- */
@@ -107,22 +136,21 @@ export class AmoApiQueryService {
         subdomain,
         pathQ,
         accessToken,
-    }: TGetCustomFields): Promise<TQueryCustomField> {
-        const path = this.amoApiHelperService.createPath({
+    }: TGetCustomFields): Promise<TFieldObject[]> {
+        const path = this.createPath({
             subdomain,
             path: [pathQ],
         });
 
-        const header = {
-            headers: {
-                Authorization:
-                    this.amoApiHelperService.createHeaderAuthorization({
-                        token: accessToken,
-                    }),
-            },
-        };
+        const header = this.createHeaderAuthorization({
+            token: accessToken,
+        });
 
-        const { data: customFields } = await firstValueFrom(
+        const {
+            data: {
+                _embedded: { custom_fields },
+            },
+        } = await firstValueFrom(
             this.httpService.get<TQueryCustomField>(path, header).pipe(
                 catchError((error: AxiosError) => {
                     this.logger.error(error.response?.data);
@@ -130,7 +158,8 @@ export class AmoApiQueryService {
                 })
             )
         );
-        return customFields;
+
+        return custom_fields;
     }
 
     /* --------------------------------------------------------------------------------------------------- */
@@ -142,19 +171,14 @@ export class AmoApiQueryService {
         payload,
         pathQ,
     }: TCreateCustomFields): Promise<TFieldObject[]> {
-        const path = this.amoApiHelperService.createPath({
+        const path = this.createPath({
             subdomain,
             path: [pathQ],
         });
 
-        const headers = {
-            headers: {
-                Authorization:
-                    this.amoApiHelperService.createHeaderAuthorization({
-                        token: accessToken,
-                    }),
-            },
-        };
+        const headers = this.createHeaderAuthorization({
+            token: accessToken,
+        });
 
         const {
             data: {
@@ -182,19 +206,14 @@ export class AmoApiQueryService {
         payload,
         pathQ,
     }: TPatchContactCustomFields): Promise<void> {
-        const path = this.amoApiHelperService.createPath({
+        const path = this.createPath({
             subdomain,
             path: [pathQ],
         });
 
-        const headers = {
-            headers: {
-                Authorization:
-                    this.amoApiHelperService.createHeaderAuthorization({
-                        token: accessToken,
-                    }),
-            },
-        };
+        const headers = this.createHeaderAuthorization({
+            token: accessToken,
+        });
 
         await axios.patch(path, payload, headers);
     }

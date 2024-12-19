@@ -1,13 +1,24 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { Endpoints } from 'src/shared/constants/endpoints';
-import { TBodyAddContact, TBodyUpdateContact } from './types/types';
+import { TBodyAddContact } from './types/bodyAddContact';
 import { ContactService } from './contact.service';
+import { TBodyUpdateContact } from './types/bodyUpdateContact';
 
-@Controller()
+@Controller(Endpoints.AmoApi.Endpoint.WebHook.WebHook)
 export class ContactController {
+    private static endpointContactAdd = [
+        Endpoints.AmoApi.Endpoint.WebHook.Contact.Contact,
+        Endpoints.AmoApi.Endpoint.WebHook.Contact.Next.Add,
+    ].join('/');
+
+    private static endpointContactUpdate = [
+        Endpoints.AmoApi.Endpoint.WebHook.Contact.Contact,
+        Endpoints.AmoApi.Endpoint.WebHook.Contact.Next.Update,
+    ].join('/');
+
     constructor(private readonly contactService: ContactService) {}
 
-    @Post(Endpoints.AmoApi.WebHookEvents.add_contact)
+    @Post(ContactController.endpointContactAdd)
     public async addContact(@Body() body: TBodyAddContact): Promise<void> {
         const {
             account,
@@ -19,7 +30,7 @@ export class ContactController {
         });
     }
 
-    @Post(Endpoints.AmoApi.WebHookEvents.update_contact)
+    @Post(ContactController.endpointContactUpdate)
     public async updateContact(
         @Body() body: TBodyUpdateContact
     ): Promise<void> {

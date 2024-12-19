@@ -1,10 +1,5 @@
-import { IsEnum, IsNumber, IsString } from 'class-validator';
-import { Endpoints } from 'src/shared/constants/endpoints';
-
-const enumFieldName = new Set(
-    ...Endpoints.AmoApi.CustomFields.Contact.Fields.map((el) => el.name),
-    ...Endpoints.AmoApi.CustomFields.Lead.Fields.map((el) => el.name)
-);
+import { IsIn, IsNumber, IsString } from 'class-validator';
+import { enumFieldName } from 'src/shared/constants/custom-fields';
 
 export class CreateCustomFieldDTO {
     @IsNumber()
@@ -13,7 +8,7 @@ export class CreateCustomFieldDTO {
     @IsString()
     public readonly fieldType: string;
 
-    @IsEnum(enumFieldName)
+    @IsIn([...enumFieldName])
     public readonly fieldName: string;
 
     @IsNumber()

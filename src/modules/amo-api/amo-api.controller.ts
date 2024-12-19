@@ -1,8 +1,8 @@
 /* eslint-disable indent */
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { AmoApiService } from './amo-api.service';
-import { TQueryWhenInstallWebHook } from './types/types';
 import { Endpoints } from 'src/shared/constants/endpoints';
+import { TQueryWhenInstallWebHook } from './types/queryWhenInstallWebHook';
 
 @Controller(Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration)
 export class AmoApiController {

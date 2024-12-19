@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { AmoApiQueryService } from '../amo-api/services/amo-api.query.service';
-import { AccountRepository } from '../account/account.repository';
-import { Endpoints } from 'src/shared/constants/endpoints';
 import { Fields } from './enums/enum';
-import { TAddOrUpdateContact, TAgeCalculation } from './types/types';
+import { Path } from 'src/shared/constants/path';
+import { TAddOrUpdateContact } from './types/addOrUpdateContact';
+import { TAgeCalculation } from './types/ageCalculation';
+import { AmoApiService } from '../amo-api/amo-api.service';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class ContactService {
     constructor(
-        private readonly amoApiQueryService: AmoApiQueryService,
-        private readonly accountRepository: AccountRepository
+        private readonly amoApiService: AmoApiService,
+        private readonly accountService: AccountService
     ) {}
 
     public async addOrUpdateContact({
@@ -26,22 +27,19 @@ export class ContactService {
             return;
         }
 
-        const accountData = await this.accountRepository.getAccountByAccountId({
+        const accountData = await this.accountService.getAccountByAccountId({
             accountId: Number(account.id),
         });
 
-        const customFieldsContact =
-            await this.amoApiQueryService.getCustomFields({
-                subdomain: accountData.subdomain,
-                pathQ: Endpoints.AmoApi.Path.Contacts_Custom_Fields,
-                accessToken: accountData.accessToken,
-            });
+        const contactsCustomFields = await this.amoApiService.getCustomFields({
+            subdomain: accountData.subdomain,
+            pathQ: Path.ContactsCustomFields,
+            accessToken: accountData.accessToken,
+        });
 
-        const ageField = customFieldsContact._embedded.custom_fields.filter(
-            (field) => {
-                return field.name === Fields.Age;
-            }
-        );
+        const ageField = contactsCustomFields.filter((field) => {
+            return field.name === Fields.Age;
+        });
 
         if (!ageField.length) {
             return;
@@ -85,7 +83,7 @@ export class ContactService {
                     } else {
                         value = firstValue;
                     }
-                    console.log(value, age);
+
                     if (Number(value) !== age) {
                         const values = [{ value: age }];
 
@@ -104,11 +102,11 @@ export class ContactService {
             .filter((el) => el !== undefined);
 
         if (payload.length) {
-            await this.amoApiQueryService.patchContactCustomFields({
+            await this.amoApiService.patchContactCustomFields({
                 subdomain: accountData.subdomain,
                 accessToken: accountData.accessToken,
                 payload,
-                pathQ: Endpoints.AmoApi.Path.Contact,
+                pathQ: Path.Contact,
             });
         }
     }

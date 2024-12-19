@@ -28,16 +28,20 @@ export class AccountRepository {
         if (!account) {
             throw new NotFoundException(EnvError.Not_Found);
         }
+
         return account;
     }
+
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public createAccount(
-        accountDto: CreateAccountDTO
-    ): Promise<AccountDocument> {
+    public async createAccount({
+        accountDto,
+    }: {
+        accountDto: CreateAccountDTO;
+    }): Promise<AccountDocument> {
         const account = new this.accountModel(accountDto);
-        return account.save();
+        return await account.save();
     }
 
     /* --------------------------------------------------------------------------------------------------- */

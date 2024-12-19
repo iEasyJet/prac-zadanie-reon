@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { ConfigService } from '@nestjs/config';
-import { Env } from 'src/shared/env.enum';
 import { AccountRepository } from './account.repository';
-import { AmoApiQueryService } from '../amo-api/services/amo-api.query.service';
-import { Endpoints } from 'src/shared/constants/endpoints';
 import { AccountDocument } from './models/account.model';
+import { AmoApiService } from '../amo-api/amo-api.service';
+import { TAccountId } from './types/accountId';
+import { TModelId } from './types/modelId';
+import { TUpdateAccount } from './types/updateAccount';
+import { CreateAccountDTO } from './dto/create-account.dto';
 
 @Injectable()
 export class AccountService {
@@ -13,8 +14,7 @@ export class AccountService {
 
     constructor(
         private readonly accountRepository: AccountRepository,
-        private readonly configService: ConfigService,
-        private readonly amoApiQueryService: AmoApiQueryService
+        private readonly amoApiService: AmoApiService
     ) {}
 
     /* '45 * * * * *' */
@@ -50,24 +50,91 @@ export class AccountService {
         }
     }
 
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
     private async preparingAccountData(
         account: AccountDocument
     ): Promise<AccountDocument> {
-        const updatedTokens =
-            await this.amoApiQueryService.getAccessAndRefreshTokens({
-                dataForGetTokens: {
-                    referer: account.subdomain,
-                    client_id: this.configService.get<string>(
-                        Env.ClientID
-                    ) as string,
-                    refresh_token: account.refreshToken,
-                },
-                grandType: Endpoints.AmoApi.GrantType.Refresh_Token,
-            });
+        const updatedTokens = await this.amoApiService.updateToken({
+            referer: account.subdomain,
+            refresh_token: account.refreshToken,
+        });
 
         return this.accountRepository.updateAccount(account.id, {
             accessToken: updatedTokens.access_token,
             refreshToken: updatedTokens.refresh_token,
         });
     }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async checkAccountByAccountId({
+        accountId,
+    }: TAccountId): Promise<boolean> {
+        const answer = await this.accountRepository.checkAccountByAccountId({
+            accountId,
+        });
+
+        return answer;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async getAccountByAccountId({
+        accountId,
+    }: TAccountId): Promise<AccountDocument> {
+        const account = await this.accountRepository.getAccountByAccountId({
+            accountId,
+        });
+
+        return account;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async updateAccount(
+        id: TModelId,
+        { accessToken, refreshToken, isInstalled }: TUpdateAccount
+    ): Promise<AccountDocument> {
+        const updatedAccount = await this.accountRepository.updateAccount(id, {
+            accessToken,
+            refreshToken,
+            isInstalled,
+        });
+
+        return updatedAccount;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async createAccount({
+        accountDto,
+    }: {
+        accountDto: CreateAccountDTO;
+    }): Promise<AccountDocument> {
+        const account = await this.accountRepository.createAccount({
+            accountDto,
+        });
+
+        return account;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async clearAccount({ id }: TModelId): Promise<AccountDocument> {
+        const account = await this.accountRepository.clearAccount({
+            id,
+        });
+
+        return account;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
 }
