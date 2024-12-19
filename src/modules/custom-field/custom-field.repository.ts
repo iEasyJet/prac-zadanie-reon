@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CustomField, CustomFieldDocument } from './models/custom-field.model';
 import { Model } from 'mongoose';
 import { CreateCustomFieldDTO } from './dto/create-cutom-field.dto';
-import { TRequestCustomFields, TAccount_ID } from './types/types';
+import { TAccountId } from './types/accountId';
 
 @Injectable()
 export class CustomFieldRepository {
@@ -15,24 +15,11 @@ export class CustomFieldRepository {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async getCustomFieldsByAccountIdAndEntityType({
-        accountId,
-        entityType,
-    }: TRequestCustomFields): Promise<CustomFieldDocument[]> {
-        const customFields = await this.customFieldModel.find({
-            accountId,
-            entityType,
-        });
-
-        return customFields;
-    }
-
-    /* --------------------------------------------------------------------------------------------------- */
-    /* --------------------------------------------------------------------------------------------------- */
-
-    public async createCustomField(
-        customFieldDto: CreateCustomFieldDTO
-    ): Promise<CustomFieldDocument> {
+    public async createCustomField({
+        customFieldDto,
+    }: {
+        customFieldDto: CreateCustomFieldDTO;
+    }): Promise<CustomFieldDocument> {
         const customField = new this.customFieldModel(customFieldDto);
         return customField.save();
     }
@@ -40,20 +27,9 @@ export class CustomFieldRepository {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async deleteCustomFieldByAccountId({
-        accountId,
-    }: TAccount_ID): Promise<void> {
-        await this.customFieldModel.deleteMany({
-            accountId,
-        });
-    }
-
-    /* --------------------------------------------------------------------------------------------------- */
-    /* --------------------------------------------------------------------------------------------------- */
-
     public async findAllCustomFieldByAccountId({
         accountId,
-    }: TAccount_ID): Promise<Array<CustomFieldDocument>> {
+    }: TAccountId): Promise<Array<CustomFieldDocument>> {
         const customFields = await this.customFieldModel.find({
             accountId,
         });
@@ -65,7 +41,7 @@ export class CustomFieldRepository {
 
     public async deleteCustomFieldsByAccountId({
         accountId,
-    }: TAccount_ID): Promise<void> {
+    }: TAccountId): Promise<void> {
         await this.customFieldModel.deleteMany({ accountId });
     }
 
