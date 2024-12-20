@@ -2,12 +2,10 @@ import { forwardRef, Module } from '@nestjs/common';
 import { AmoApiService } from './amo-api.service';
 import { HttpModule } from '@nestjs/axios';
 import { AmoApiController } from './amo-api.controller';
-import { AmoApiHelperService } from './services/amo-api.helper.service';
-import { AmoApiQueryService } from './services/amo-api.query.service';
-import { AmoApiMainService } from './services/amo-api.main.service';
+import { AmoApiRepository } from './services/amo-api.repository';
 import { AccountModule } from '../account/account.module';
 import { CustomFieldModule } from '../custom-field/custom-field.module';
-import { AmoApiWebHookService } from './services/amo-api.webhook.service';
+import { AmoApiWebHook } from './services/amo-api.webhook';
 
 @Module({
     imports: [
@@ -16,16 +14,10 @@ import { AmoApiWebHookService } from './services/amo-api.webhook.service';
             maxRedirects: 5,
         }),
         forwardRef(() => AccountModule),
-        CustomFieldModule,
+        forwardRef(() => CustomFieldModule),
     ],
-    providers: [
-        AmoApiService,
-        AmoApiHelperService,
-        AmoApiQueryService,
-        AmoApiMainService,
-        AmoApiWebHookService,
-    ],
+    providers: [AmoApiService, AmoApiRepository, AmoApiWebHook],
     controllers: [AmoApiController],
-    exports: [AmoApiQueryService],
+    exports: [AmoApiService],
 })
 export class AmoApiModule {}

@@ -6,31 +6,35 @@ import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AccountModule } from 'src/modules/account/account.module';
 import { AmoApiModule } from 'src/modules/amo-api/amo-api.module';
-import { env } from 'src/shared/env.enum';
+import { Env } from 'src/shared/enums/env.enum';
 import * as Joi from 'joi';
+import { ContactModule } from 'src/modules/contact/contact.module';
+import { CustomFieldModule } from 'src/modules/custom-field/custom-field.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
             validationSchema: Joi.object({
-                [env.Port]: Joi.number().required().port().default(3000),
-                [env.Client_ID]: Joi.string().required(),
-                [env.Client_Secret]: Joi.string().required(),
-                [env.MongoDB_URL]: Joi.string().required(),
-                [env.Redirect_Uri_When_Install_integration]:
+                [Env.Port]: Joi.number().required().port(),
+                [Env.ClientID]: Joi.string().required(),
+                [Env.ClientSecret]: Joi.string().required(),
+                [Env.MongoDBUrl]: Joi.string().required(),
+                [Env.RedirectURIWhenInstallIntegration]:
                     Joi.string().required(),
             }),
         }),
         MongooseModule.forRootAsync({
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get<string>(env.MongoDB_URL),
+                uri: configService.get<string>(Env.MongoDBUrl),
             }),
             inject: [ConfigService],
         }),
-        AccountModule,
         ScheduleModule.forRoot(),
+        AccountModule,
         AmoApiModule,
+        ContactModule,
+        CustomFieldModule,
     ],
     controllers: [AppController],
     providers: [AppService],

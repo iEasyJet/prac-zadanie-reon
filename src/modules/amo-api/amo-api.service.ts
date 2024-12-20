@@ -1,20 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { TAccount_ID, TQueryWhenInstallWebHook } from './types/types';
-import { AmoApiQueryService } from './services/amo-api.query.service';
-import { AmoApiMainService } from './services/amo-api.main.service';
-import { AccountRepository } from '../account/account.repository';
-import { Endpoints } from 'src/shared/constants/endpoints';
-import { CustomFieldRepository } from '../custom-field/custom-field.repository';
-import { AmoApiWebHookService } from './services/amo-api.webhook.service';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { AmoApiRepository } from './services/amo-api.repository';
+import { AmoApiWebHook } from './services/amo-api.webhook';
+import { AccountSettings } from 'src/shared/constants/account-settings.const';
+import { Path } from 'src/shared/constants/path.const';
+import { CustomFieldService } from '../custom-field/custom-field.service';
+import { AccountService } from '../account/account.service';
+import { TQueryWhenInstallWebHook } from './types/query-when-install-webhook.type';
+import { TAccountId } from './types/account-id.type';
+import { TResponseWithTokens } from './types/response-with-tokens.type';
+import { TGetCustomFields } from './types/get-custom-fields.type';
+import { TPatchContactCustomFields } from './types/patch-contact-custom-fields.type';
+import { TFieldObject } from '../../shared/types/field-object.type';
+import { TCreateCustomFields } from './types/create-custom-fields.type';
+import { TGetTokens } from './types/get-tokens.type';
 
 @Injectable()
 export class AmoApiService {
     constructor(
-        private readonly accountRepository: AccountRepository,
-        private readonly amoApiQueryService: AmoApiQueryService,
-        private readonly amoApiMainService: AmoApiMainService,
-        private readonly customFieldRepository: CustomFieldRepository,
-        private readonly amoApiWebHookService: AmoApiWebHookService
+        //@Inject(forwardRef(() => AmoApiRepository))
+        private readonly amoApiRepository: AmoApiRepository,
+        //@Inject(forwardRef(() => AmoApiWebHook))
+        private readonly amoApiWebHook: AmoApiWebHook,
+        @Inject(forwardRef(() => AccountService))
+        private readonly accountService: AccountService,
+        //@Inject(forwardRef(() => CustomFieldService))
+        private readonly customFieldService: CustomFieldService
     ) {}
 
     /* --------------------------------------------------------------------------------------------------- */
@@ -25,60 +35,68 @@ export class AmoApiService {
     }: {
         queryWhenInstallWebHook: TQueryWhenInstallWebHook;
     }): Promise<void> {
-        const accessAndRefreshTokens =
-            await this.amoApiQueryService.getAccessAndRefreshTokens({
-                dataForGetTokens: queryWhenInstallWebHook,
-                grandType: Endpoints.AmoApi.GrantType.Authorization_Code,
-            });
+        const accessAndRefreshTokens = await this.getTokens({
+            code: queryWhenInstallWebHook.code,
+            referer: queryWhenInstallWebHook.referer,
+        });
 
-        const accountInfoFromCrm = await this.amoApiQueryService.getAccountInfo(
-            {
-                accessToken: accessAndRefreshTokens.access_token,
-                subdomain: queryWhenInstallWebHook.referer,
-            }
-        );
+        const accountInfoFromCrm = await this.amoApiRepository.getAccountInfo({
+            accessToken: accessAndRefreshTokens.access_token,
+            subdomain: queryWhenInstallWebHook.referer,
+        });
 
-        const existAccount =
-            await this.accountRepository.checkAccountByAccountId({
-                accountId: accountInfoFromCrm.id,
-            });
+        const existAccount = await this.accountService.checkAccountByAccountId({
+            accountId: accountInfoFromCrm.id,
+        });
 
         if (existAccount) {
-            await this.accountRepository.updateAccount({
+            const account = await this.accountService.getAccountByAccountId({
                 accountId: accountInfoFromCrm.id,
+            });
+
+            await this.accountService.updateAccount(account.id, {
                 accessToken: accessAndRefreshTokens.access_token,
                 refreshToken: accessAndRefreshTokens.refresh_token,
-                isInstalled: Endpoints.Account.Install,
+                isInstalled: AccountSettings.Install,
             });
         } else {
-            await this.accountRepository.createAccount({
+            await this.accountService.createAccount({
                 accountId: accountInfoFromCrm.id,
                 subdomain: queryWhenInstallWebHook.referer,
                 accessToken: accessAndRefreshTokens.access_token,
                 refreshToken: accessAndRefreshTokens.refresh_token,
-                isInstalled: Endpoints.Account.Install,
+                isInstalled: AccountSettings.Install,
             });
         }
 
         /* Часть 2. Кастомные поля */
 
-        await this.amoApiMainService.addCustomFieldsInAmoCrmAndDBInstallIntegration(
+        await this.customFieldService.addCustomFieldsInAmoCrmAndDBInstallIntegration(
             {
                 subdomain: queryWhenInstallWebHook.referer,
                 accessToken: accessAndRefreshTokens.access_token,
+                whichField: 'Contact',
+            }
+        );
+
+        await this.customFieldService.addCustomFieldsInAmoCrmAndDBInstallIntegration(
+            {
+                subdomain: queryWhenInstallWebHook.referer,
+                accessToken: accessAndRefreshTokens.access_token,
+                whichField: 'Lead',
             }
         );
 
         /* Часть 3. Установка хуков */
 
-        const webHooksFromAmo = await this.amoApiWebHookService.getWebHooks({
+        const webHooksFromAmo = await this.amoApiWebHook.getWebHooks({
             subdomain: queryWhenInstallWebHook.referer,
-            pathQ: Endpoints.AmoApi.Path.WebHooks,
+            pathQ: Path.WebHooks,
             accessToken: accessAndRefreshTokens.access_token,
         });
 
         const webHooksForInstall =
-            await this.amoApiWebHookService.checkWebHooksNotInstall({
+            await this.amoApiWebHook.checkWebHooksNotInstall({
                 webhooks: webHooksFromAmo,
             });
 
@@ -90,9 +108,9 @@ export class AmoApiService {
                         settings: [hook.name],
                     };
 
-                    this.amoApiWebHookService.addWebHook({
+                    this.amoApiWebHook.addWebHook({
                         subdomain: queryWhenInstallWebHook.referer,
-                        pathQ: Endpoints.AmoApi.Path.WebHooks,
+                        pathQ: Path.WebHooks,
                         accessToken: accessAndRefreshTokens.access_token,
                         payload,
                     });
@@ -106,20 +124,104 @@ export class AmoApiService {
 
     public async unInstallIntegration({
         accountId,
-    }: TAccount_ID): Promise<void> {
+    }: TAccountId): Promise<void> {
         /* Часть 1 */
 
-        await this.accountRepository.clearAccount({
+        const account = await this.accountService.getAccountByAccountId({
             accountId,
+        });
+
+        await this.accountService.clearAccount({
+            id: account.id,
         });
 
         /* Часть 2 */
 
-        await this.customFieldRepository.deleteCustomFieldByAccountId({
+        await this.customFieldService.deleteCustomFieldsByAccountId({
             accountId,
         });
     }
 
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
+
+    public async getTokens({
+        code,
+        referer,
+    }: TGetTokens): Promise<TResponseWithTokens> {
+        const tokens = await this.amoApiRepository.getTokens({
+            code,
+            referer,
+        });
+
+        return tokens;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async updateToken({
+        referer,
+        refresh_token,
+    }: TGetTokens): Promise<TResponseWithTokens> {
+        const tokens = await this.amoApiRepository.updateToken({
+            referer,
+            refresh_token,
+        });
+
+        return tokens;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async getCustomFields({
+        subdomain,
+        pathQ,
+        accessToken,
+    }: TGetCustomFields): Promise<TFieldObject[]> {
+        const customFields = await this.amoApiRepository.getCustomFields({
+            subdomain,
+            pathQ,
+            accessToken,
+        });
+
+        return customFields;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async patchContactCustomFields({
+        subdomain,
+        accessToken,
+        payload,
+        pathQ,
+    }: TPatchContactCustomFields): Promise<void> {
+        await this.amoApiRepository.patchContactCustomFields({
+            subdomain,
+            accessToken,
+            payload,
+            pathQ,
+        });
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async createCustomFields({
+        subdomain,
+        accessToken,
+        payload,
+        pathQ,
+    }: TCreateCustomFields): Promise<TFieldObject[]> {
+        const customFields = await this.amoApiRepository.createCustomFields({
+            subdomain,
+            accessToken,
+            payload,
+            pathQ,
+        });
+
+        return customFields;
+    }
 }

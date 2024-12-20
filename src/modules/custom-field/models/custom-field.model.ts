@@ -1,11 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { Endpoints } from 'src/shared/constants/endpoints';
-
-const enumFieldName = new Set([
-    ...Endpoints.AmoApi.CustomFields.Contact.Fields.map((el) => el.name),
-    ...Endpoints.AmoApi.CustomFields.Lead.Fields.map((el) => el.name),
-]);
+import { enumFieldName } from 'src/shared/constants/custom-fields.const';
 
 @Schema()
 export class CustomField {

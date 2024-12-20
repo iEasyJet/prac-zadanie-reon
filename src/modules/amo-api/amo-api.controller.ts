@@ -1,18 +1,14 @@
 /* eslint-disable indent */
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { AmoApiService } from './amo-api.service';
-import { TQueryWhenInstallWebHook } from './types/types';
-import { Endpoints } from 'src/shared/constants/endpoints';
-import { AmoApiWebHookService } from './services/amo-api.webhook.service';
+import { Endpoints } from 'src/shared/constants/endpoints.const';
+import { TQueryWhenInstallWebHook } from './types/query-when-install-webhook.type';
 
-@Controller(Endpoints.AmoApi.Endpoint.Amo_Integration)
+@Controller(Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration)
 export class AmoApiController {
-    constructor(
-        private readonly amoApiService: AmoApiService,
-        private readonly amoApiWebHookService: AmoApiWebHookService
-    ) {}
+    constructor(private readonly amoApiService: AmoApiService) {}
 
-    @Get(Endpoints.AmoApi.Endpoint.Add)
+    @Get(Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add)
     public async installIntegration(
         @Query() queryWhenInstallWebHook: TQueryWhenInstallWebHook
     ): Promise<void> {
@@ -21,7 +17,7 @@ export class AmoApiController {
         });
     }
 
-    @Get(Endpoints.AmoApi.Endpoint.Delete)
+    @Get(Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Delete)
     public async unInstallIntegration(
         @Query('account_id', ParseIntPipe)
         account_id: number
