@@ -13,6 +13,8 @@ import { TPatchContactCustomFields } from './types/patch-contact-custom-fields.t
 import { TFieldObject } from '../../shared/types/field-object.type';
 import { TCreateCustomFields } from './types/create-custom-fields.type';
 import { TGetTokens } from './types/get-tokens.type';
+import { TLead } from 'src/shared/types/lead/lead.type';
+import { TGetLeadInfo } from './types/get-lead-info.type';
 
 @Injectable()
 export class AmoApiService {
@@ -45,15 +47,11 @@ export class AmoApiService {
             subdomain: queryWhenInstallWebHook.referer,
         });
 
-        const existAccount = await this.accountService.checkAccountByAccountId({
+        const account = await this.accountService.getAccountByAccountId({
             accountId: accountInfoFromCrm.id,
         });
 
-        if (existAccount) {
-            const account = await this.accountService.getAccountByAccountId({
-                accountId: accountInfoFromCrm.id,
-            });
-
+        if (account) {
             await this.accountService.updateAccount(account.id, {
                 accessToken: accessAndRefreshTokens.access_token,
                 refreshToken: accessAndRefreshTokens.refresh_token,
@@ -224,4 +222,24 @@ export class AmoApiService {
 
         return customFields;
     }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async getLeadInfo({
+        subdomain,
+        accessToken,
+        pathQ,
+    }: TGetLeadInfo): Promise<TLead> {
+        const lead = await this.amoApiRepository.getLeadInfo({
+            subdomain,
+            accessToken,
+            pathQ,
+        });
+
+        return lead;
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
 }

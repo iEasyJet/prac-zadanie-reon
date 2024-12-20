@@ -4,11 +4,11 @@ export const ContactFields = {
     DateOfBirth: {
         key: 'DateOfBirth',
         value: 'Дата рождения',
-        type: FieldType.date,
+        type: FieldType.Date,
     },
     Age: {
         key: 'Age',
         value: 'Возраст',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
 };

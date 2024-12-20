@@ -87,11 +87,11 @@ export class CustomFieldService {
         if (listFields.notExistCustomFieldsInAmoCrm.length) {
             const payload = listFields.notExistCustomFieldsInAmoCrm.map(
                 (el, index) => {
-                    const fieldsByName = Object.values(
+                    const [{ items: fieldsByName }] = Object.values(
                         settings[whichField].customFields
                     ).filter((field) => {
                         return field.name === el.name;
-                    })[0].items;
+                    });
 
                     const enums = fieldsByName?.map((el, index) => {
                         return {

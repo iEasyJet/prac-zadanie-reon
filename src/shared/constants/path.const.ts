@@ -5,4 +5,5 @@ export const Path = {
     LeadsCustomFields: '/api/v4/leads/custom_fields',
     WebHooks: '/api/v4/webhooks',
     Contact: '/api/v4/contacts',
+    Lead: 'api/v4/leads',
 };

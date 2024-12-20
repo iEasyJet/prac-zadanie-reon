@@ -18,6 +18,8 @@ import { TCreateCustomFields } from '../types/create-custom-fields.type';
 import { TPatchContactCustomFields } from '../types/patch-contact-custom-fields.type';
 import { GrantType } from 'src/shared/constants/grand-type.const';
 import { TGetTokens } from '../types/get-tokens.type';
+import { TLead } from 'src/shared/types/lead/lead.type';
+import { TGetLeadInfo } from '../types/get-lead-info.type';
 
 @Injectable()
 export class AmoApiRepository extends AmoApiHelper {
@@ -96,6 +98,7 @@ export class AmoApiRepository extends AmoApiHelper {
 
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
+
     public async updateToken({
         referer,
         refresh_token,
@@ -212,6 +215,28 @@ export class AmoApiRepository extends AmoApiHelper {
         });
 
         await axios.patch(path, payload, headers);
+    }
+
+    /* --------------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------------- */
+
+    public async getLeadInfo({
+        subdomain,
+        accessToken,
+        pathQ,
+    }: TGetLeadInfo): Promise<TLead> {
+        const path = this.createPath({
+            subdomain,
+            path: pathQ,
+        });
+
+        const headers = this.createHeaderAuthorization({
+            token: accessToken,
+        });
+
+        const { data: lead } = await axios.get<TLead>(path, headers);
+
+        return lead;
     }
 
     /* --------------------------------------------------------------------------------------------------- */

@@ -4,26 +4,26 @@ export const ServicesFields = {
     LaserFacialRejuvenation: {
         key: 'LaserFacialRejuvenation',
         value: 'Лазерное омоложение лица',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
     UltrasonicLifting: {
         key: 'UltrasonicLifting',
         value: 'Ультразвуковой лифтинг',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
     LaserRemovalOfBloodVessels: {
         key: 'LaserRemovalOfBloodVessels',
         value: 'Лазерное удаление сосудов',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
     CorrectionOfExpressionWrinkles: {
         key: 'CorrectionOfExpressionWrinkles',
         value: 'Коррекция мимических морщин',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
     LaserHairRemoval: {
         key: 'LaserHairRemoval',
         value: 'Лазерная эпиляция',
-        type: FieldType.numeric,
+        type: FieldType.Numeric,
     },
 };

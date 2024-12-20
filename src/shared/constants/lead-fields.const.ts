@@ -9,7 +9,7 @@ export const LeadFields = {
     Services: {
         key: 'Services',
         value: 'Услуги',
-        type: FieldType.multiselect,
+        type: FieldType.Multiselect,
         items: ServicesFieldsOnlyValue,
     },
 };

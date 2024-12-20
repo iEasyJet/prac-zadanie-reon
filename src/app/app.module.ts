@@ -10,6 +10,7 @@ import { Env } from 'src/shared/enums/env.enum';
 import * as Joi from 'joi';
 import { ContactModule } from 'src/modules/contact/contact.module';
 import { CustomFieldModule } from 'src/modules/custom-field/custom-field.module';
+import { LeadModule } from 'src/modules/lead/lead.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { CustomFieldModule } from 'src/modules/custom-field/custom-field.module'
         AmoApiModule,
         ContactModule,
         CustomFieldModule,
+        LeadModule,
     ],
     controllers: [AppController],
     providers: [AppService],
