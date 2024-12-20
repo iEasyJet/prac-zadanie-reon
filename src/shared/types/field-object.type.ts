@@ -1,7 +1,7 @@
-import { TEnumValue } from './enumValue';
-import { TNestedValue } from '../../modules/amo-api/types/nestedValue';
-import { TRequiredStatus } from '../../modules/amo-api/types/requiredStatus';
-import { EntityType } from '../enums/entityType.enum';
+import { TEnumValue } from './enum-value.type';
+import { TNestedValue } from '../../modules/amo-api/types/nested-value.type';
+import { TRequiredStatus } from '../../modules/amo-api/types/required-status.type';
+import { EntityType } from '../enums/entity-type.enum';
 
 export type TFieldObject = {
     id: number;

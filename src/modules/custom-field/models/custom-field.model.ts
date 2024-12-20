@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { enumFieldName } from 'src/shared/constants/custom-fields';
+import { enumFieldName } from 'src/shared/constants/custom-fields.const';
 
 @Schema()
 export class CustomField {

@@ -13,6 +13,6 @@ import { AmoApiModule } from '../amo-api/amo-api.module';
         forwardRef(() => AmoApiModule),
     ],
     providers: [AccountRepository, AccountService],
-    exports: [AccountService, AccountRepository],
+    exports: [AccountService],
 })
 export class AccountModule {}

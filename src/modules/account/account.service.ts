@@ -3,9 +3,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { AccountRepository } from './account.repository';
 import { AccountDocument } from './models/account.model';
 import { AmoApiService } from '../amo-api/amo-api.service';
-import { TAccountId } from './types/accountId';
-import { TModelId } from './types/modelId';
-import { TUpdateAccount } from './types/updateAccount';
+import { TAccountId } from './types/account-id.type';
+import { TModelId } from './types/model-id.type';
+import { TUpdateAccount } from './types/update-account.type';
 import { CreateAccountDTO } from './dto/create-account.dto';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class AccountService {
     /* CronExpression.EVERY_12_HOURS */
 
     @Cron(CronExpression.EVERY_12_HOURS)
-    public async handleCron(): Promise<void> {
+    public async handleUpdateTokens(): Promise<void> {
         this.logger.debug('Updated accounts tokens!');
 
         let offset = 0;
@@ -42,7 +42,8 @@ export class AccountService {
 
             await Promise.allSettled(
                 accounts.map(
-                    async (account) => await this.preparingAccountData(account)
+                    async (account) =>
+                        await this.preparingDataForUpdateTokens(account)
                 )
             );
 
@@ -53,7 +54,7 @@ export class AccountService {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    private async preparingAccountData(
+    private async preparingDataForUpdateTokens(
         account: AccountDocument
     ): Promise<AccountDocument> {
         const updatedTokens = await this.amoApiService.updateToken({
@@ -112,14 +113,10 @@ export class AccountService {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async createAccount({
-        accountDto,
-    }: {
-        accountDto: CreateAccountDTO;
-    }): Promise<AccountDocument> {
-        const account = await this.accountRepository.createAccount({
-            accountDto,
-        });
+    public async createAccount(
+        accountDto: CreateAccountDTO
+    ): Promise<AccountDocument> {
+        const account = await this.accountRepository.createAccount(accountDto);
 
         return account;
     }

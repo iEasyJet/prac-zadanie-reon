@@ -1,8 +1,8 @@
-import { TCreateFieldsObjectArray } from '../types/createFieldsObjectArray';
-import { TReturnCreateFieldsObjectArray } from '../types/returnCreateFieldsObjectArray';
-import { ContactFields } from './contactFields';
-import { LeadFields } from './leadFields';
-import { ServicesFields } from './servicesFields';
+import { TCreateFieldsObjectArray } from '../types/create-fields-object-array.type';
+import { TReturnCreateFieldsObjectArray } from '../types/return-create-fields-object-array.type';
+import { ContactFields } from './contact-fields.const';
+import { LeadFields } from './lead-fields.const';
+import { ServicesFields } from './services-fields.const';
 
 function createFieldsObjectArray(
     obj: TCreateFieldsObjectArray

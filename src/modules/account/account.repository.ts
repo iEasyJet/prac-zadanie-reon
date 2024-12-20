@@ -4,11 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateAccountDTO } from './dto/create-account.dto';
 import { EnvError } from './enums/errors.enum';
-import { TAccountId } from './types/accountId';
-import { TOptionsWhereIntegrationInstall } from './types/optionsWhereIntegrationInstall';
-import { TModelId } from './types/modelId';
-import { TUpdateAccount } from './types/updateAccount';
-import { AccountSettings } from 'src/shared/constants/account-settings';
+import { TAccountId } from './types/account-id.type';
+import { TOptionsWhereIntegrationInstall } from './types/options-whereI-integration-install.type';
+import { TModelId } from './types/model-id.type';
+import { TUpdateAccount } from './types/update-account.type';
+import { AccountSettings } from 'src/shared/constants/account-settings.const';
 
 @Injectable()
 export class AccountRepository {
@@ -35,11 +35,9 @@ export class AccountRepository {
     /* --------------------------------------------------------------------------------------------------- */
     /* --------------------------------------------------------------------------------------------------- */
 
-    public async createAccount({
-        accountDto,
-    }: {
-        accountDto: CreateAccountDTO;
-    }): Promise<AccountDocument> {
+    public async createAccount(
+        accountDto: CreateAccountDTO
+    ): Promise<AccountDocument> {
         const account = new this.accountModel(accountDto);
         return await account.save();
     }

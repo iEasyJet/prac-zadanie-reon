@@ -13,6 +13,6 @@ import { AmoApiModule } from '../amo-api/amo-api.module';
         forwardRef(() => AmoApiModule),
     ],
     providers: [CustomFieldService, CustomFieldRepository],
-    exports: [CustomFieldService, CustomFieldRepository],
+    exports: [CustomFieldService],
 })
 export class CustomFieldModule {}

@@ -1,16 +1,16 @@
 import { AmoApiService } from './../amo-api/amo-api.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CustomFieldRepository } from './custom-field.repository';
-import { TAccountId } from './types/accountId';
+import { TAccountId } from './types/account-id.type';
 import { CreateCustomFieldDTO } from './dto/create-cutom-field.dto';
 import { CustomFieldDocument } from './models/custom-field.model';
-import { TRequestAddCustomFields } from './types/requestAddCustomFields';
-import { CustomFields } from 'src/shared/constants/custom-fields';
-import { Path } from 'src/shared/constants/path';
-import { TComparedCustomFields } from './types/comparedCustomFields';
-import { TCustomFieldsToCompare } from './types/customFieldsToCompare';
-import { TFieldObject } from '../../shared/types/fieldObject';
-import { EntityType } from 'src/shared/constants/entity-type';
+import { TRequestAddCustomFields } from './types/request-add-custom-fields.type';
+import { CustomFields } from 'src/shared/constants/custom-fields.const';
+import { Path } from 'src/shared/constants/path.const';
+import { TComparedCustomFields } from './types/compared-custom-fields.type';
+import { TCustomFieldsToCompare } from './types/custom-fields-to-compare.type';
+import { TFieldObject } from '../../shared/types/field-object.type';
+import { EntityType } from 'src/shared/constants/entity-type.const';
 
 @Injectable()
 export class CustomFieldService {

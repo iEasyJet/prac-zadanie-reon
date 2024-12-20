@@ -1,4 +1,4 @@
-import { FieldType } from '../enums/fieldType.enum';
+import { FieldType } from '../enums/field-type.enum';
 
 export type TReturnCreateFieldsObjectArray = {
     [x: string]: {

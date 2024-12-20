@@ -1,4 +1,4 @@
-import { TPayloadContactCustomFields } from './payloadContactCustomFields';
+import { TPayloadContactCustomFields } from './payload-contact-custom-fields.type';
 
 export type TPatchContactCustomFields = {
     subdomain: string;

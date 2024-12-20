@@ -1,5 +1,5 @@
 import { IsIn, IsNumber, IsString } from 'class-validator';
-import { enumFieldName } from 'src/shared/constants/custom-fields';
+import { enumFieldName } from 'src/shared/constants/custom-fields.const';
 
 export class CreateCustomFieldDTO {
     @IsNumber()

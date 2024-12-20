@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CustomField, CustomFieldDocument } from './models/custom-field.model';
 import { Model } from 'mongoose';
 import { CreateCustomFieldDTO } from './dto/create-cutom-field.dto';
-import { TAccountId } from './types/accountId';
+import { TAccountId } from './types/account-id.type';
 
 @Injectable()
 export class CustomFieldRepository {

@@ -1,29 +1,29 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { AmoApiRepository } from './services/amo-api.repository';
 import { AmoApiWebHook } from './services/amo-api.webhook';
-import { AccountSettings } from 'src/shared/constants/account-settings';
-import { Path } from 'src/shared/constants/path';
+import { AccountSettings } from 'src/shared/constants/account-settings.const';
+import { Path } from 'src/shared/constants/path.const';
 import { CustomFieldService } from '../custom-field/custom-field.service';
 import { AccountService } from '../account/account.service';
-import { TQueryWhenInstallWebHook } from './types/queryWhenInstallWebHook';
-import { TAccountId } from './types/accountId';
-import { TResponseWithTokens } from './types/responseWithTokens';
-import { TGetCustomFields } from './types/getCustomFields';
-import { TPatchContactCustomFields } from './types/patchContactCustomFields';
-import { TFieldObject } from '../../shared/types/fieldObject';
-import { TCreateCustomFields } from './types/createCustomFields';
-import { TGetTokens } from './types/getTokens';
+import { TQueryWhenInstallWebHook } from './types/query-when-install-webhook.type';
+import { TAccountId } from './types/account-id.type';
+import { TResponseWithTokens } from './types/response-with-tokens.type';
+import { TGetCustomFields } from './types/get-custom-fields.type';
+import { TPatchContactCustomFields } from './types/patch-contact-custom-fields.type';
+import { TFieldObject } from '../../shared/types/field-object.type';
+import { TCreateCustomFields } from './types/create-custom-fields.type';
+import { TGetTokens } from './types/get-tokens.type';
 
 @Injectable()
 export class AmoApiService {
     constructor(
-        @Inject(forwardRef(() => AmoApiRepository))
+        //@Inject(forwardRef(() => AmoApiRepository))
         private readonly amoApiRepository: AmoApiRepository,
-        @Inject(forwardRef(() => AmoApiWebHook))
+        //@Inject(forwardRef(() => AmoApiWebHook))
         private readonly amoApiWebHook: AmoApiWebHook,
         @Inject(forwardRef(() => AccountService))
         private readonly accountService: AccountService,
-        @Inject(forwardRef(() => CustomFieldService))
+        //@Inject(forwardRef(() => CustomFieldService))
         private readonly customFieldService: CustomFieldService
     ) {}
 
@@ -61,13 +61,11 @@ export class AmoApiService {
             });
         } else {
             await this.accountService.createAccount({
-                accountDto: {
-                    accountId: accountInfoFromCrm.id,
-                    subdomain: queryWhenInstallWebHook.referer,
-                    accessToken: accessAndRefreshTokens.access_token,
-                    refreshToken: accessAndRefreshTokens.refresh_token,
-                    isInstalled: AccountSettings.Install,
-                },
+                accountId: accountInfoFromCrm.id,
+                subdomain: queryWhenInstallWebHook.referer,
+                accessToken: accessAndRefreshTokens.access_token,
+                refreshToken: accessAndRefreshTokens.refresh_token,
+                isInstalled: AccountSettings.Install,
             });
         }
 

@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { TCreatePath } from '../types/createPath';
-import { TResponseCreateHeader } from '../types/responseCreateHeader';
+import { TCreatePath } from '../types/create-path.type';
+import { TResponseCreateHeader } from '../types/response-create-header.type';
 
-@Injectable()
 export class AmoApiHelper {
     constructor() {}
 

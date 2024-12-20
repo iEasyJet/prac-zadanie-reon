@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Fields } from './enums/enum';
-import { Path } from 'src/shared/constants/path';
-import { TAddOrUpdateContact } from './types/addOrUpdateContact';
-import { TAgeCalculation } from './types/ageCalculation';
+import { Fields } from './enums/fields.enum';
+import { Path } from 'src/shared/constants/path.const';
+import { TAddOrUpdateContact } from './types/add-or-update-contact.type';
+import { TAgeCalculation } from './types/age-calculation.type';
 import { AmoApiService } from '../amo-api/amo-api.service';
 import { AccountService } from '../account/account.service';
+import { MillisecondInOneYear } from './constants/millisecond-in-one-year.const';
 
 @Injectable()
 export class ContactService {
@@ -17,13 +18,13 @@ export class ContactService {
         account,
         contacts,
     }: TAddOrUpdateContact): Promise<void> {
-        const contactsWhereBithDayIsNotEmpty = contacts.filter((contact) => {
+        const contactsWhereBirthDayIsNotEmpty = contacts.filter((contact) => {
             return contact.custom_fields?.some((field) => {
                 return field.name === Fields.BirthDay;
             });
         });
 
-        if (!contactsWhereBithDayIsNotEmpty.length) {
+        if (!contactsWhereBirthDayIsNotEmpty.length) {
             return;
         }
 
@@ -45,7 +46,7 @@ export class ContactService {
             return;
         }
 
-        const payload = contactsWhereBithDayIsNotEmpty
+        const payload = contactsWhereBirthDayIsNotEmpty
             .map((concat) => {
                 const birthDayFieldValue =
                     Number(
@@ -112,8 +113,7 @@ export class ContactService {
     }
 
     private ageCalculation({ birthDay }: TAgeCalculation): number {
-        const millisecInOneYear = 31536000000;
         const now = Date.now();
-        return Math.floor((now - birthDay) / millisecInOneYear);
+        return Math.floor((now - birthDay) / MillisecondInOneYear);
     }
 }

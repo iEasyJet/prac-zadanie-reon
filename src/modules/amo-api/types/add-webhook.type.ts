@@ -1,4 +1,4 @@
-import { TPayloadWebHook } from './payloadWebHook';
+import { TPayloadWebHook } from './payload-webhook.type';
 
 export type TAddWebHook = {
     subdomain: string;

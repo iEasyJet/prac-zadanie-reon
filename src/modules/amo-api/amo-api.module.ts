@@ -6,7 +6,6 @@ import { AmoApiRepository } from './services/amo-api.repository';
 import { AccountModule } from '../account/account.module';
 import { CustomFieldModule } from '../custom-field/custom-field.module';
 import { AmoApiWebHook } from './services/amo-api.webhook';
-import { AmoApiHelper } from './services/amo-api.helper';
 
 @Module({
     imports: [
@@ -17,8 +16,8 @@ import { AmoApiHelper } from './services/amo-api.helper';
         forwardRef(() => AccountModule),
         forwardRef(() => CustomFieldModule),
     ],
-    providers: [AmoApiService, AmoApiRepository, AmoApiWebHook, AmoApiHelper],
+    providers: [AmoApiService, AmoApiRepository, AmoApiWebHook],
     controllers: [AmoApiController],
-    exports: [AmoApiService, AmoApiRepository, AmoApiWebHook],
+    exports: [AmoApiService],
 })
 export class AmoApiModule {}

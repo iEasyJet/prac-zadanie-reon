@@ -1,8 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { Endpoints } from 'src/shared/constants/endpoints';
-import { TBodyAddContact } from './types/bodyAddContact';
+import { Endpoints } from 'src/shared/constants/endpoints.const';
+import { TBodyAddContact } from './types/body-add-contact.type';
 import { ContactService } from './contact.service';
-import { TBodyUpdateContact } from './types/bodyUpdateContact';
+import { TBodyUpdateContact } from './types/body-update-contact.type';
 
 @Controller(Endpoints.AmoApi.Endpoint.WebHook.WebHook)
 export class ContactController {

@@ -5,23 +5,27 @@ import { AmoApiHelper } from './amo-api.helper';
 import { catchError, firstValueFrom } from 'rxjs';
 import axios, { AxiosError } from 'axios';
 import { EnvError } from '../enums/error.enum';
-import { Endpoints } from 'src/shared/constants/endpoints';
+import { Endpoints } from 'src/shared/constants/endpoints.const';
 import { Env } from 'src/shared/enums/env.enum';
-import { Path } from 'src/shared/constants/path';
-import { TRequestGetAccountInfo } from '../types/requestGetAccountInfo';
-import { TAmoAccount } from '../types/amoAccount';
-import { TResponseWithTokens } from '../types/responseWithTokens';
-import { TQueryCustomField } from '../types/queryCustomField';
-import { TGetCustomFields } from '../types/getCustomFields';
-import { TFieldObject } from '../../../shared/types/fieldObject';
-import { TCreateCustomFields } from '../types/createCustomFields';
-import { TPatchContactCustomFields } from '../types/patchContactCustomFields';
-import { GrantType } from 'src/shared/constants/grand-type';
-import { TGetTokens } from '../types/getTokens';
+import { Path } from 'src/shared/constants/path.const';
+import { TRequestGetAccountInfo } from '../types/request-get-account-info.type';
+import { TAmoAccount } from '../types/amo-account.type';
+import { TResponseWithTokens } from '../types/response-with-tokens.type';
+import { TQueryCustomField } from '../types/query-custom-field.type';
+import { TGetCustomFields } from '../types/get-custom-fields.type';
+import { TFieldObject } from '../../../shared/types/field-object.type';
+import { TCreateCustomFields } from '../types/create-custom-fields.type';
+import { TPatchContactCustomFields } from '../types/patch-contact-custom-fields.type';
+import { GrantType } from 'src/shared/constants/grand-type.const';
+import { TGetTokens } from '../types/get-tokens.type';
 
 @Injectable()
 export class AmoApiRepository extends AmoApiHelper {
     private readonly logger = new Logger(AmoApiRepository.name);
+
+    private readonly redirect_uri = `${this.configService.get<string>(
+        Env.RedirectURIWhenInstallIntegration
+    )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
 
     constructor(
         private readonly httpService: HttpService,
@@ -70,16 +74,12 @@ export class AmoApiRepository extends AmoApiHelper {
             path: [Path.AccessToken],
         });
 
-        const redirect_uri = `${this.configService.get(
-            Env.RedirectURIWhenInstallIntegration
-        )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
-
         const payload = {
             client_id: this.configService.get(Env.ClientID),
             client_secret: this.configService.get(Env.ClientSecret),
             grant_type: GrantType.AuthorizationCode,
             code,
-            redirect_uri,
+            redirect_uri: this.redirect_uri,
         };
 
         const { data: tokens }: { data: TResponseWithTokens } =
@@ -105,16 +105,12 @@ export class AmoApiRepository extends AmoApiHelper {
             path: [Path.AccessToken],
         });
 
-        const redirect_uri = `${this.configService.get(
-            Env.RedirectURIWhenInstallIntegration
-        )}/${Endpoints.AmoApi.Endpoint.AmoIntegration.AmoIntegration}/${Endpoints.AmoApi.Endpoint.AmoIntegration.Next.Add}`;
-
         const payload = {
             client_id: this.configService.get(Env.ClientID),
             client_secret: this.configService.get(Env.ClientSecret),
             grant_type: GrantType.RefreshToken,
             refresh_token: refresh_token,
-            redirect_uri,
+            redirect_uri: this.redirect_uri,
         };
 
         const { data: tokens }: { data: TResponseWithTokens } =

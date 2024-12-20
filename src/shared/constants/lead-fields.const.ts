@@ -1,5 +1,5 @@
-import { FieldType } from '../enums/fieldType.enum';
-import { ServicesFields } from './servicesFields';
+import { FieldType } from '../enums/field-type.enum';
+import { ServicesFields } from './services-fields.const';
 
 const ServicesFieldsOnlyValue = Object.values(ServicesFields).map((el) => {
     return el.value;

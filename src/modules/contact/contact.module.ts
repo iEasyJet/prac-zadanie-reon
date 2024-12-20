@@ -5,8 +5,8 @@ import { AmoApiModule } from '../amo-api/amo-api.module';
 import { AccountModule } from '../account/account.module';
 
 @Module({
+    imports: [forwardRef(() => AmoApiModule), forwardRef(() => AccountModule)],
     controllers: [ContactController],
     providers: [ContactService],
-    imports: [forwardRef(() => AmoApiModule), forwardRef(() => AccountModule)],
 })
 export class ContactModule {}

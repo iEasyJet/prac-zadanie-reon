@@ -3,13 +3,13 @@ import { AmoApiHelper } from './amo-api.helper';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/shared/enums/env.enum';
-import { Endpoints } from 'src/shared/constants/endpoints';
-import { TWebHookData } from '../types/webHookData';
-import { TGetWebHooks } from '../types/getWebHooks';
-import { TWebHook } from '../types/webHook';
-import { TAddWebHook } from '../types/addWebHook';
-import { TCheckWebHooks } from '../types/checkWebHooks';
-import { TResponseCheckWebHooks } from '../types/responseCheckWebHooks';
+import { Endpoints } from 'src/shared/constants/endpoints.const';
+import { TWebHookData } from '../types/webhook-data.type';
+import { TGetWebHooks } from '../types/get-webhooks.type';
+import { TWebHook } from '../types/webhook.type';
+import { TAddWebHook } from '../types/add-webhook.type';
+import { TCheckWebHooks } from '../types/check-webhooks.type';
+import { TResponseCheckWebHooks } from '../types/response-check-webhooks.type';
 
 @Injectable()
 export class AmoApiWebHook extends AmoApiHelper {
